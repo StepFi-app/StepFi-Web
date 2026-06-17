@@ -10,6 +10,7 @@ import { Sponsors } from '../pages/Sponsors'
 import { Vouch } from '../pages/Vouch'
 import { LearnerProfile } from '../pages/LearnerProfile'
 import { NotFound } from '../pages/NotFound'
+import { History } from '../pages/History'
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: '/learner/:walletAddress',
     element: <Layout><LearnerProfile /></Layout>,
+  },
+  {
+    path: '/history',
+    element: <Layout><History /></Layout>,
   },
   {
     path: '*',
