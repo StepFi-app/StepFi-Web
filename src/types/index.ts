@@ -132,3 +132,46 @@ export interface Vouch {
   status: 'Active' | 'Revoked'
   createdAt: string
 }
+
+export interface VouchRequest {
+  id: string
+  learnerAddress: string
+  learnerWallet: string
+  score: number
+  tier: 'Starter' | 'Bronze' | 'Silver' | 'Gold'
+  totalLoans: number
+  activeLoans: number
+  totalBorrowed: number
+  totalRepaid: number
+  loanAmount: number
+  purpose: string
+  requestedAt: string
+  skills: string[]
+}
+
+export interface ActiveVouch {
+  id: string
+  learnerAddress: string
+  learnerWallet: string
+  score: number
+  tier: 'Starter' | 'Bronze' | 'Silver' | 'Gold'
+  reputationBoost: number
+  interestRateBefore: number
+  interestRateAfter: number
+  expiryDate: string
+  repaymentStatus: 'current' | 'late' | 'defaulted'
+  createdAt: string
+  loanAmount: number
+  paidAmount: number
+  installments: number
+  paidInstallments: number
+}
+
+export interface VouchResponse {
+  id: string
+  learnerAddress: string
+  mentorAddress: string
+  status: 'Active' | 'Revoked'
+  createdAt: string
+  txHash: string
+}
