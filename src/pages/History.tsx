@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useWallet } from '../hooks/useWallet'
 import { fetchTransactions, stellarExpertUrl } from '../services/history.service'
-import type { Transaction } from '../services/history.service'
+import type { Transaction, TransactionType, TransactionStatus } from '../services/history.service'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Download } from 'lucide-react'
@@ -22,15 +22,29 @@ export function History() {
 
   useEffect(() => {
     if (!isConnected || !address) return
-    setLoading(true)
-    fetchTransactions(address, {
-      type: filterType as any,
-      status: filterStatus as any,
-      fromDate: fromDate || undefined,
-      toDate: toDate || undefined,
-    })
-      .then((data) => setTransactions(data))
-      .finally(() => setLoading(false))
+
+    let isMounted = true
+
+    const load = async () => {
+      setLoading(true)
+      try {
+        const data = await fetchTransactions(address, {
+          type: (filterType || undefined) as TransactionType | undefined,
+          status: (filterStatus || undefined) as TransactionStatus | undefined,
+          fromDate: fromDate || undefined,
+          toDate: toDate || undefined,
+        })
+        if (isMounted) setTransactions(data)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    load()
+
+    return () => {
+      isMounted = false
+    }
   }, [isConnected, address, filterType, filterStatus, fromDate, toDate])
 
   const pending = useMemo(

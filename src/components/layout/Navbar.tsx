@@ -26,6 +26,8 @@ export function Navbar() {
 
   useEffect(() => {
     setMobileOpen(false)
+    // Intentionally only depends on pathname — setter is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
   return (
