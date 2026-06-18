@@ -10,6 +10,7 @@ import { Sponsors } from '../pages/Sponsors'
 import { SponsorOnboarding } from '../pages/SponsorOnboarding'
 import { Vouch } from '../pages/Vouch'
 import { LearnerProfile } from '../pages/LearnerProfile'
+import { Admin } from '../pages/Admin'
 import { NotFound } from '../pages/NotFound'
 
 const router = createBrowserRouter([
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: <Layout><Dashboard /></Layout>,
+  },
+  {
+    path: '/admin',
+    element: <Layout><Admin /></Layout>,
   },
   {
     path: '/vendors',
