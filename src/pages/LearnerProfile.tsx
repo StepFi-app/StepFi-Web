@@ -47,7 +47,7 @@ function ScoreChart({ data, isLoading }: { data?: ReputationHistoryPoint[]; isLo
   const height = 200
 
   return (
-    <div className="w-full">
+    <div className="w-full" role="img" aria-label={`Reputation score chart. ${data.map(d => `${new Date(d.date).toLocaleDateString()}: ${d.score}`).join(', ')}`}>
       <svg viewBox={`0 0 ${data.length * 60} ${height}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
@@ -298,13 +298,14 @@ export function LearnerProfile() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
+              <caption className="sr-only">Loan history</caption>
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-3 text-text-muted font-medium">ID</th>
-                  <th className="text-left py-3 px-3 text-text-muted font-medium">Amount</th>
-                  <th className="text-left py-3 px-3 text-text-muted font-medium">Status</th>
-                  <th className="text-left py-3 px-3 text-text-muted font-medium">Progress</th>
-                  <th className="text-left py-3 px-3 text-text-muted font-medium">Created</th>
+                  <th scope="col" className="text-left py-3 px-3 text-text-muted font-medium">ID</th>
+                  <th scope="col" className="text-left py-3 px-3 text-text-muted font-medium">Amount</th>
+                  <th scope="col" className="text-left py-3 px-3 text-text-muted font-medium">Status</th>
+                  <th scope="col" className="text-left py-3 px-3 text-text-muted font-medium">Progress</th>
+                  <th scope="col" className="text-left py-3 px-3 text-text-muted font-medium">Created</th>
                 </tr>
               </thead>
               <tbody>

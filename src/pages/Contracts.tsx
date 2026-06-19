@@ -60,10 +60,10 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      title="Copy contract ID"
       className="shrink-0 p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-brand/10 transition-colors"
+      aria-label={copied ? 'Contract ID copied' : 'Copy contract ID'}
     >
-      {copied ? <Check size={14} className="text-brand" /> : <Copy size={14} />}
+      {copied ? <Check size={14} className="text-brand" aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
     </button>
   )
 }
@@ -133,20 +133,19 @@ export function Contracts() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+      <section aria-label="Contract cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
         {contracts.map((contract) => (
           <ContractCard key={contract.key} contract={contract} />
         ))}
-      </div>
+      </section>
 
-      {/* Verification guide */}
-      <div
+      <section aria-label="Self-verification guide"
         className="rounded-2xl p-8 border border-border"
         style={{ background: 'rgba(13,27,42,0.6)' }}
       >
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-brand/10 border border-brand/20">
-            <Terminal size={20} className="text-brand" />
+            <Terminal size={20} className="text-brand" aria-hidden="true" />
           </div>
           <h2 className="font-display font-semibold text-xl text-text-primary">
             Self-Verification Guide
@@ -160,7 +159,7 @@ export function Contracts() {
             href={VERIFICATION_MD_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand hover:underline"
+            className="text-brand underline underline-offset-2 decoration-brand/60 hover:decoration-brand"
           >
             VERIFICATION.md
           </a>
@@ -218,7 +217,7 @@ export function Contracts() {
             Browse Source Code <ExternalLink size={14} />
           </a>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

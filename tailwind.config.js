@@ -12,7 +12,7 @@ export default {
         'brand-blue': '#2563EB',
         'text-primary': '#F0F4F8',
         'text-secondary': '#A8BCCF',
-        'text-muted': '#5A7A94',
+        'text-muted': '#6B8CA8',
       },
       fontFamily: {
         display: ['Sora', 'sans-serif'],

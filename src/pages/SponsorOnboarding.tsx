@@ -27,11 +27,11 @@ const fadeSlide: Variants = {
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="max-w-xl mx-auto mb-12">
-      <div className="flex items-center justify-between mb-3">
+    <nav aria-label="Onboarding progress" className="max-w-xl mx-auto mb-12">
+      <ol className="flex items-center justify-between mb-3">
         {steps.map((s, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div
+          <li key={i} className="flex items-center gap-2" aria-current={i === current ? 'step' : undefined}>
+            <span
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                 i < current
                   ? 'bg-brand text-bg'
@@ -39,9 +39,10 @@ function StepIndicator({ current }: { current: number }) {
                     ? 'bg-brand/20 text-brand border border-brand'
                     : 'bg-surface text-text-muted border border-border'
               }`}
+              aria-hidden="true"
             >
-              {i < current ? <Check size={14} /> : i + 1}
-            </div>
+              {i < current ? <Check size={14} aria-hidden="true" /> : i + 1}
+            </span>
             <span
               className={`hidden sm:block text-sm font-medium ${
                 i <= current ? 'text-text-primary' : 'text-text-muted'
@@ -49,16 +50,16 @@ function StepIndicator({ current }: { current: number }) {
             >
               {s.title}
             </span>
-          </div>
+          </li>
         ))}
-      </div>
-      <div className="h-1.5 bg-surface rounded-full overflow-hidden">
+      </ol>
+      <div className="h-1.5 bg-surface rounded-full overflow-hidden" role="progressbar" aria-valuenow={current + 1} aria-valuemin={1} aria-valuemax={steps.length} aria-label={`Step ${current + 1} of ${steps.length}`}>
         <div
           className="h-full bg-brand transition-all duration-500 rounded-full"
           style={{ width: `${(current / (steps.length - 1)) * 100}%` }}
         />
       </div>
-    </div>
+    </nav>
   )
 }
 
@@ -224,14 +225,15 @@ function StepPoolHealth({ onNext }: { onNext: () => void }) {
         </Card>
       )}
 
-      <Card className="mb-8">
+        <Card className="mb-8">
         <h3 className="font-semibold text-text-primary mb-3">Yield Preview</h3>
-        <p className="text-text-muted text-xs mb-3">
+        <label htmlFor="deposit-amount" className="text-text-muted text-xs mb-3 block">
           Enter a deposit amount to see your estimated returns.
-        </p>
+        </label>
         <div className="relative mb-4">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-medium">$</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-medium" aria-hidden="true">$</span>
           <input
+            id="deposit-amount"
             type="number"
             placeholder="0"
             value={depositAmount}
@@ -345,6 +347,7 @@ export function SponsorOnboarding() {
           <button
             onClick={() => setStep(step - 1)}
             className="text-sm text-text-muted hover:text-text-secondary transition-colors"
+            aria-label={`Go back to ${steps[step - 1].title} step`}
           >
             Back
           </button>
