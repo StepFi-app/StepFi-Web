@@ -120,15 +120,25 @@ function LoansTable({
         <div className="text-center py-16 text-text-muted">No loans found.</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Active loans table">
+            <caption className="sr-only">Active loans with sortable columns</caption>
             <thead>
               <tr className="border-b border-border">
                 {columns.map((col) => (
                   <th
                     key={col.key}
                     onClick={() => onSort(col.key)}
+                    scope="col"
                     className="text-left py-3 px-3 text-text-muted font-medium cursor-pointer
                       hover:text-text-primary transition-colors select-none"
+                    aria-label={`${col.label} column. Click to sort.`}
+                    aria-sort={
+                      sortField === col.key
+                        ? sortOrder === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : undefined
+                    }
                   >
                     <div className="flex items-center gap-1">
                       {col.label}
@@ -281,7 +291,9 @@ function ApiKeySection({
         <div className="mb-4 p-4 rounded-xl border border-brand/20 bg-brand/5">
           <p className="text-text-secondary text-sm mb-3">Create a new API key</p>
           <div className="flex gap-2">
+            <label htmlFor="api-key-label" className="sr-only">API key label</label>
             <input
+              id="api-key-label"
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -450,9 +462,9 @@ export function VendorDashboard() {
   if (!isConnected) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">
+        <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
           Connect your wallet to continue
-        </h2>
+        </h1>
         <p className="text-text-secondary mb-8">
           You need a Stellar wallet to access the vendor dashboard.
         </p>

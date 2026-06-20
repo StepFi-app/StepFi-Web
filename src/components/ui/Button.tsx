@@ -27,10 +27,13 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      aria-disabled={disabled || loading || undefined}
       className={clsx(
         'inline-flex items-center justify-center gap-2',
         'font-semibold rounded-xl transition-all duration-200',
         'disabled:opacity-50 disabled:cursor-not-allowed',
+        'focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2',
         {
           'bg-brand text-bg hover:opacity-90 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]':
             variant === 'primary',
@@ -50,8 +53,9 @@ export function Button({
       {loading ? (
         <>
           <span className="w-4 h-4 border-2 border-current
-            border-t-transparent rounded-full animate-spin" />
-          Loading...
+            border-t-transparent rounded-full animate-spin"
+            aria-hidden="true" />
+          <span>Loading...</span>
         </>
       ) : children}
     </button>

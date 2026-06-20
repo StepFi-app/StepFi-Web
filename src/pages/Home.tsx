@@ -92,7 +92,7 @@ function SectionHeader({ title, subtitle, align = 'center' }: SectionHeaderProps
 function DotGrid() {
   return (
     <motion.div
-      aria-hidden
+      aria-hidden="true"
       className="absolute inset-0 pointer-events-none"
       style={{
         backgroundImage:
@@ -239,7 +239,7 @@ const footerColumns = [
   {
     title: 'Protocol',
     links: [
-      { label: 'Docs', href: 'https://stepfi.vercel.app/docs' },
+      { label: 'Docs', href: '/docs', internal: true },
       { label: 'Demo', href: 'https://stepfi.vercel.app/demo' },
       { label: 'Playground', href: 'https://stepfi.vercel.app/playground' },
       { label: 'API Docs', href: 'https://stepfi.vercel.app/api' },
@@ -292,7 +292,7 @@ function HeroSection() {
             color: ACCENT.sponsor,
           }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" aria-hidden="true" />
           Live on Stellar Testnet
         </motion.div>
 
@@ -628,35 +628,40 @@ function MentorsSection() {
         </motion.div>
 
         <motion.div variants={fadeUp}>
-          <div
-            className="rounded-2xl border border-border overflow-hidden"
+          <table
+            className="w-full rounded-2xl border border-border overflow-hidden"
             style={{ background: 'rgba(13,27,42,0.6)' }}
           >
-            <div className="grid grid-cols-3 px-5 py-3 text-xs font-medium text-text-muted border-b border-border">
-              <span>Mentor Tier</span>
-              <span className="text-center">Reputation Boost</span>
-              <span className="text-right">Duration</span>
-            </div>
-            {mentorTiers.map((row) => (
-              <div
-                key={row.tier}
-                className="grid grid-cols-3 px-5 py-4 text-sm border-b border-border last:border-b-0"
-              >
-                <span className="text-text-primary font-medium">
-                  {row.tier}
-                </span>
-                <span
-                  className="text-center font-medium"
-                  style={{ color: ACCENT.mentor }}
+            <caption className="sr-only">Mentor tiers and their reputation boosts</caption>
+            <thead>
+              <tr className="grid grid-cols-3 px-5 py-3 text-xs font-medium text-text-muted border-b border-border">
+                <th className="text-left">Mentor Tier</th>
+                <th className="text-center">Reputation Boost</th>
+                <th className="text-right">Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mentorTiers.map((row) => (
+                <tr
+                  key={row.tier}
+                  className="grid grid-cols-3 px-5 py-4 text-sm border-b border-border last:border-b-0"
                 >
-                  {row.boost}
-                </span>
-                <span className="text-right text-text-secondary">
-                  {row.duration}
-                </span>
-              </div>
-            ))}
-          </div>
+                  <td className="text-text-primary font-medium">
+                    {row.tier}
+                  </td>
+                  <td
+                    className="text-center font-medium"
+                    style={{ color: ACCENT.mentor }}
+                  >
+                    {row.boost}
+                  </td>
+                  <td className="text-right text-text-secondary">
+                    {row.duration}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
           <div
             className="mt-5 rounded-xl px-4 py-3 text-sm"
@@ -770,18 +775,32 @@ function FooterLinksStrip() {
               {column.title}
             </h3>
             <ul className="space-y-3">
-              {column.links.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-text-muted hover:text-brand transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {column.links.map((link) => {
+                if ('internal' in link && link.internal) {
+                  return (
+                    <li key={link.label}>
+                      <Link
+                        to={link.href}
+                        className="text-sm text-text-muted hover:text-brand transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                }
+                return (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-text-muted hover:text-brand transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                )
+              })}
             </ul>
           </motion.div>
         ))}

@@ -10,10 +10,10 @@ export function Dashboard() {
     return (
       <div className="max-w-7xl mx-auto px-6 py-24
         text-center">
-        <h2 className="font-display font-bold text-3xl
+        <h1 className="font-display font-bold text-3xl
           text-text-primary mb-4">
           Connect your wallet to continue
-        </h2>
+        </h1>
         <p className="text-text-secondary mb-8">
           You need a Stellar wallet to access
           the dashboard.
@@ -45,7 +45,7 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3
         gap-6">
 
-        <Link to="/sponsors">
+        <Link to="/sponsors" aria-label="Sponsor dashboard: deposit to liquidity pool and earn yield">
           <div className="rounded-2xl p-8 cursor-pointer
             transition-all hover:scale-[1.02]"
             style={{
@@ -53,7 +53,7 @@ export function Dashboard() {
               border: '1px solid rgba(34,197,94,0.3)',
             }}>
             <Building size={36}
-              className="text-brand mb-4" />
+              className="text-brand mb-4" aria-hidden="true" />
             <h3 className="font-display font-bold
               text-xl text-text-primary mb-2">
               Sponsor
@@ -67,12 +67,12 @@ export function Dashboard() {
             <div className="flex items-center gap-1
               mt-6 text-brand text-sm font-medium">
               Go to Sponsor Dashboard
-              <ArrowRight size={14} />
+              <ArrowRight size={14} aria-hidden="true" />
             </div>
           </div>
         </Link>
 
-        <Link to="/vendors">
+        <Link to="/vendors" aria-label="Vendor dashboard: list products and get paid upfront">
           <div className="rounded-2xl p-8 cursor-pointer
             transition-all hover:scale-[1.02]"
             style={{
@@ -81,7 +81,7 @@ export function Dashboard() {
             }}>
             <Store size={36}
               style={{ color: '#2563EB' }}
-              className="mb-4" />
+              className="mb-4" aria-hidden="true" />
             <h3 className="font-display font-bold
               text-xl text-text-primary mb-2">
               Vendor
@@ -96,12 +96,12 @@ export function Dashboard() {
               mt-6 text-sm font-medium"
               style={{ color: '#2563EB' }}>
               Go to Vendor Dashboard
-              <ArrowRight size={14} />
+              <ArrowRight size={14} aria-hidden="true" />
             </div>
           </div>
         </Link>
 
-        <Link to="/vouch">
+        <Link to="/vouch" aria-label="Mentor dashboard: vouch for learners and help them access better loan terms">
           <div className="rounded-2xl p-8 cursor-pointer
             transition-all hover:scale-[1.02]"
             style={{
@@ -110,7 +110,7 @@ export function Dashboard() {
             }}>
             <Award size={36}
               style={{ color: '#F59E0B' }}
-              className="mb-4" />
+              className="mb-4" aria-hidden="true" />
             <h3 className="font-display font-bold
               text-xl text-text-primary mb-2">
               Mentor
@@ -125,7 +125,7 @@ export function Dashboard() {
               mt-6 text-sm font-medium"
               style={{ color: '#F59E0B' }}>
               Go to Mentor Dashboard
-              <ArrowRight size={14} />
+              <ArrowRight size={14} aria-hidden="true" />
             </div>
           </div>
         </Link>

@@ -8,7 +8,7 @@ export function Footer() {
         flex flex-col md:flex-row items-center
         justify-between gap-4">
         <div className="flex items-center gap-2">
-          <svg width="24" height="20" viewBox="0 0 28 24">
+          <svg width="24" height="20" viewBox="0 0 28 24" aria-hidden="true">
             <rect x="0" y="18" width="6" height="6"
               rx="1.5" fill="#1D4ED8"/>
             <rect x="8" y="12" width="6" height="12"
@@ -25,31 +25,36 @@ export function Footer() {
             © 2026 · MIT License · Built for Stellar
           </span>
         </div>
-        <div className="flex items-center gap-6 text-sm
-          text-text-muted">
-          <a href="https://github.com/StepFi-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand transition-colors">
-            GitHub
-          </a>
-          <a href="https://stepfi.vercel.app/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand transition-colors">
-            Docs
-          </a>
-          <Link to="/contracts"
-            className="hover:text-brand transition-colors">
-            Contracts
-          </Link>
-          <a href="https://contribute.grantfox.xyz/org/StepFi-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand transition-colors">
-            Grantfox
-          </a>
-        </div>
+        <nav aria-label="Footer navigation">
+          <div className="flex items-center gap-6 text-sm
+            text-text-muted">
+            <a href="https://github.com/StepFi-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand transition-colors"
+              aria-label="GitHub (opens in new tab)">
+              GitHub
+            </a>
+            <a href="https://stepfi.vercel.app/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand transition-colors"
+              aria-label="Documentation (opens in new tab)">
+              Docs
+            </a>
+            <Link to="/contracts"
+              className="hover:text-brand transition-colors">
+              Contracts
+            </Link>
+            <a href="https://contribute.grantfox.xyz/org/StepFi-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand transition-colors"
+              aria-label="Grantfox (opens in new tab)">
+              Grantfox
+            </a>
+          </div>
+        </nav>
       </div>
     </footer>
   )

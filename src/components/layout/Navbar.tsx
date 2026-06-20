@@ -27,6 +27,7 @@ export function Navbar() {
   return (
     <nav
       className="fixed top-0 w-full z-50 transition-all duration-300"
+      aria-label="Main navigation"
       style={{
         background: scrolled
           ? 'rgba(8,15,26,0.95)'
@@ -44,8 +45,9 @@ export function Navbar() {
           to="/" 
           className="flex items-center gap-2 group"
           onClick={() => setMobileOpen(false)}
+          aria-label="StepFi home"
         >
-          <svg width="28" height="24" viewBox="0 0 28 24">
+          <svg width="28" height="24" viewBox="0 0 28 24" aria-hidden="true">
             <rect x="0" y="18" width="6" height="6"
               rx="1.5" fill="#1D4ED8"/>
             <rect x="8" y="12" width="6" height="12"
@@ -75,6 +77,7 @@ export function Navbar() {
                 style={{
                   color: isActive ? '#22C55E' : '#A8BCCF',
                 }}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <span className="absolute inset-0 rounded-lg
                   opacity-0 group-hover:opacity-100
@@ -101,8 +104,9 @@ export function Navbar() {
             className="flex items-center gap-1 px-3 py-2
               text-xs text-text-muted hover:text-brand
               transition-colors"
+            aria-label="Landing page (opens in new tab)"
           >
-            Landing <ExternalLink size={12} />
+            Landing <ExternalLink size={12} aria-hidden="true" />
           </a>
 
           {isConnected ? (
@@ -112,15 +116,19 @@ export function Navbar() {
                 style={{
                   background: 'rgba(34,197,94,0.08)',
                   border: '1px solid rgba(34,197,94,0.2)',
-                }}>
+                }}
+                aria-label={`Connected wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
+              >
                 <span className="w-1.5 h-1.5 rounded-full
-                  bg-brand inline-block mr-1.5" />
+                  bg-brand inline-block mr-1.5"
+                  aria-hidden="true" />
                 {address.slice(0, 6)}...{address.slice(-4)}
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={disconnectWallet}
+                aria-label={`Disconnect wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
               >
                 Disconnect
               </Button>
@@ -135,6 +143,7 @@ export function Navbar() {
                   alert(err instanceof Error ? err.message : 'Failed to connect')
                 }
               }}
+              aria-label="Connect Stellar wallet"
             >
               Connect Wallet
             </Button>
@@ -145,8 +154,10 @@ export function Navbar() {
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden p-2 rounded-lg text-text-secondary
             hover:text-text-primary transition-colors"
+          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileOpen}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {mobileOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
       </div>
 
@@ -157,15 +168,16 @@ export function Navbar() {
             borderTop: '1px solid rgba(30,58,82,0.4)',
           }}>
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              to={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="px-4 py-3 rounded-lg text-sm font-medium"
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 rounded-lg text-sm font-medium"
               style={{
                 color: pathname === link.href
                   ? '#22C55E' : '#A8BCCF',
               }}
+              aria-current={pathname === link.href ? 'page' : undefined}
             >
               {link.label}
             </Link>

@@ -47,13 +47,18 @@ export function VouchImpactPreview({
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="vouch-impact-title"
+    >
       <div className="w-full max-w-lg">
         <Card className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Award size={20} className="text-brand" />
-              <h3 className="font-display font-bold text-xl text-text-primary">
+              <h3 id="vouch-impact-title" className="font-display font-bold text-xl text-text-primary">
                 Vouch Impact Preview
               </h3>
             </div>

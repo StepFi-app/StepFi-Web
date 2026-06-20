@@ -7,5 +7,5 @@ export const colors = {
   brandBlue: '#2563EB',
   textPrimary: '#F0F4F8',
   textSecondary: '#A8BCCF',
-  textMuted: '#5A7A94',
+  textMuted: '#6B8CA8',
 }
