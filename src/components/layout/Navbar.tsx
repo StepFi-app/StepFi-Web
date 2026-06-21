@@ -16,7 +16,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { pathname } = useLocation()
-  const { address, isConnected, connectFreighter, disconnectWallet } = useWallet()
+  const { address, isConnected, isAuthenticated, connectFreighter, disconnectWallet } = useWallet()
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20)
@@ -114,13 +114,18 @@ export function Navbar() {
               <div className="px-3 py-2 rounded-xl text-xs
                 font-mono text-text-secondary"
                 style={{
-                  background: 'rgba(34,197,94,0.08)',
-                  border: '1px solid rgba(34,197,94,0.2)',
+                  background: isAuthenticated
+                    ? 'rgba(34,197,94,0.08)'
+                    : 'rgba(234,179,8,0.08)',
+                  border: isAuthenticated
+                    ? '1px solid rgba(34,197,94,0.2)'
+                    : '1px solid rgba(234,179,8,0.2)',
                 }}
                 aria-label={`Connected wallet ${address.slice(0, 6)}...${address.slice(-4)}`}
               >
-                <span className="w-1.5 h-1.5 rounded-full
-                  bg-brand inline-block mr-1.5"
+                <span className={`w-1.5 h-1.5 rounded-full inline-block mr-1.5 ${
+                  isAuthenticated ? 'bg-brand' : 'bg-yellow-500'
+                }`}
                   aria-hidden="true" />
                 {address.slice(0, 6)}...{address.slice(-4)}
               </div>
