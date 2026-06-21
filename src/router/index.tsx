@@ -13,6 +13,7 @@ import { Vouch } from '../pages/Vouch'
 import { LearnerProfile } from '../pages/LearnerProfile'
 import { NotFound } from '../pages/NotFound'
 import { History } from '../pages/History'
+import { SponsorAnalytics } from '../pages/SponsorAnalytics'
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
   {
     path: '/sponsors/onboarding',
     element: <Layout><SponsorOnboarding /></Layout>,
+  },
+  {
+    path: '/sponsors/analytics',
+    element: <Layout><SponsorAnalytics /></Layout>,
   },
   {
     path: '/vouch',

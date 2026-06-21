@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { PoolInfo } from '../types'
+import type { PoolInfo, SponsorAnalytics } from '../types'
 
 export const sponsorsService = {
   getPoolInfo: async (): Promise<PoolInfo> => {
@@ -18,6 +18,14 @@ export const sponsorsService = {
     profit: number 
   }> => {
     const res = await api.post('/liquidity/submit', { xdr: signedXdr })
+    return res.data
+  },
+
+  getAnalytics: async (startDate?: string, endDate?: string): Promise<SponsorAnalytics> => {
+    const params: Record<string, string> = {}
+    if (startDate) params.startDate = startDate
+    if (endDate) params.endDate = endDate
+    const res = await api.get('/liquidity/analytics', { params })
     return res.data
   },
 }

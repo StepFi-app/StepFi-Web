@@ -175,3 +175,33 @@ export interface VouchResponse {
   createdAt: string
   txHash: string
 }
+
+export interface YieldPoint {
+  date: string
+  yieldAmount: number
+}
+
+export interface FundedLoanCategory {
+  name: string
+  value: number
+  color: string
+}
+
+export interface RepaymentRateItem {
+  month: string
+  rate: number
+}
+
+export interface RiskMetrics {
+  defaultRate: number
+  averageLtv: number
+  concentrationRisk: number
+  poolHealth: number
+}
+
+export interface SponsorAnalytics {
+  yieldOverTime: YieldPoint[]
+  fundedLoansBreakdown: FundedLoanCategory[]
+  repaymentRate: RepaymentRateItem[]
+  riskMetrics: RiskMetrics
+}
