@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Menu, X, ExternalLink } from 'lucide-react'
+import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react'
 import { useWallet } from '../../hooks/useWallet'
+import { useAppStore } from '../../stores/app.store'
 import { Button } from '../ui/Button'
 
 const navLinks = [
@@ -17,6 +18,8 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { pathname } = useLocation()
   const { address, isConnected, isAuthenticated, connectFreighter, disconnectWallet } = useWallet()
+  const theme = useAppStore((s) => s.theme)
+  const toggleTheme = useAppStore((s) => s.toggleTheme)
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20)
@@ -24,19 +27,16 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handle)
   }, [])
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', theme === 'light')
+  }, [theme])
+
   return (
     <nav
-      className="fixed top-0 w-full z-50 transition-all duration-300"
+      className={`fixed top-0 w-full z-50 transition-all duration-300 backdrop-blur-lg ${
+        scrolled ? 'bg-bg/95 border-b border-border/80' : 'bg-bg/60 border-b border-border/20'
+      }`}
       aria-label="Main navigation"
-      style={{
-        background: scrolled
-          ? 'rgba(8,15,26,0.95)'
-          : 'rgba(8,15,26,0.6)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: scrolled
-          ? '1px solid rgba(30,58,82,0.8)'
-          : '1px solid rgba(30,58,82,0.2)',
-      }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-4
         flex items-center justify-between">
@@ -71,20 +71,19 @@ export function Navbar() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="relative px-4 py-2 text-sm
+                className={`relative px-4 py-2 text-sm
                   font-medium rounded-lg transition-all
-                  duration-200 group"
-                style={{
-                  color: isActive ? '#22C55E' : '#A8BCCF',
-                }}
+                  duration-200 group ${
+                    isActive ? 'text-brand' : 'text-text-secondary'
+                  }`}
                 aria-current={isActive ? 'page' : undefined}
               >
                 <span className="absolute inset-0 rounded-lg
                   opacity-0 group-hover:opacity-100
                   transition-opacity"
                   style={{
-                    background: 'rgba(34,197,94,0.08)',
-                    border: '1px solid rgba(34,197,94,0.15)',
+                    background: 'rgb(var(--color-brand) / 0.08)',
+                    border: '1px solid rgb(var(--color-brand) / 0.15)',
                   }}
                 />
                 <span className="relative group-hover:text-brand
@@ -97,6 +96,15 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-text-muted hover:text-text-primary
+              hover:bg-surface transition-colors"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
           <a
             href="https://stepfi.vercel.app"
             target="_blank"
@@ -167,30 +175,36 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden px-4 py-4 flex flex-col gap-1"
+        <div className="md:hidden px-4 py-4 flex flex-col gap-1 bg-bg/98"
           style={{
-            background: 'rgba(8,15,26,0.98)',
-            borderTop: '1px solid rgba(30,58,82,0.4)',
+            borderTop: '1px solid rgb(var(--color-border) / 0.4)',
           }}>
           {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm font-medium"
-              style={{
-                color: pathname === link.href
-                  ? '#22C55E' : '#A8BCCF',
-              }}
+                className={`px-4 py-3 rounded-lg text-sm font-medium ${
+                  pathname === link.href ? 'text-brand' : 'text-text-secondary'
+                }`}
               aria-current={pathname === link.href ? 'page' : undefined}
             >
               {link.label}
             </Link>
           ))}
-          <div className="pt-3 mt-2"
+          <div className="flex items-center gap-2 pt-3 mt-2"
             style={{
-              borderTop: '1px solid rgba(30,58,82,0.3)'
+              borderTop: '1px solid rgb(var(--color-border) / 0.3)'
             }}>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium
+                text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
             {isConnected ? (
               <Button
                 variant="outline"
