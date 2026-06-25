@@ -5,6 +5,7 @@ import { Docs } from '../pages/Docs'
 import { Contracts } from '../pages/Contracts'
 import { Dashboard } from '../pages/Dashboard'
 import { Vendors } from '../pages/Vendors'
+import { VendorDetail } from '../pages/VendorDetail'
 import { VendorRegister } from '../pages/VendorRegister'
 import { VendorDashboard } from '../pages/VendorDashboard'
 import { Sponsors } from '../pages/Sponsors'
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: '/vendors/register',
     element: <Layout><VendorRegister /></Layout>,
+  },
+  {
+    path: '/vendors/:id',
+    element: <Layout><VendorDetail /></Layout>,
   },
   {
     path: '/sponsors',

@@ -1,15 +1,28 @@
 import { api } from './api'
 
 export const vendorsService = {
-  listVendors: async (page = 1, limit = 10) => {
-    const res = await api.get(
-      `/vendors?page=${page}&limit=${limit}`
-    )
+  listVendors: async (page = 1, limit = 10, search?: string, category?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+    if (search) params.set('search', search)
+    if (category) params.set('category', category)
+    const res = await api.get(`/vendors?${params}`)
     return res.data
   },
 
   getVendor: async (id: string) => {
     const res = await api.get(`/vendors/${id}`)
+    return res.data
+  },
+
+  registerVendor: async (data: {
+    name: string
+    category: string
+    country: string
+    city?: string
+    website?: string
+    description?: string
+  }) => {
+    const res = await api.post('/vendors', data)
     return res.data
   },
 
