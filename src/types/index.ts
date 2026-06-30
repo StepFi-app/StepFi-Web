@@ -40,6 +40,7 @@ export interface Vendor {
   name: string
   category: string
   country: string
+  city?: string
   website?: string
   description?: string
   rating?: number
