@@ -49,7 +49,9 @@ Before submitting, confirm your changes belong here:
 
 Running these must all exit 0:
 npm run lint
+npm test
 npm run build
 
 If either fails, fix it before opening this PR.
+PRs that reduce the test count will be rejected.
 PRs with failing CI will be closed without review.
