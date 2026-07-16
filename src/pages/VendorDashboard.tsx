@@ -10,6 +10,7 @@ import { vendorsService } from '../services/vendors.service'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
+import { colors } from '../constants/colors'
 import { Spinner } from '../components/ui/Spinner'
 import type {
   VendorDashboardOverview, VendorLoan, VendorPayment,
@@ -25,10 +26,10 @@ const STATUS_VARIANT: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted
 
 function OverviewCards({ overview, isLoading }: { overview?: VendorDashboardOverview; isLoading: boolean }) {
   const cards = [
-    { label: 'Total Loans', value: overview?.totalLoans ?? 0, icon: BarChart3, color: '#22C55E' },
-    { label: 'Active Loans', value: overview?.activeLoans ?? 0, icon: CreditCard, color: '#2563EB' },
-    { label: 'Total Disbursed', value: `$${overview?.totalDisbursed?.toLocaleString() ?? 0}`, icon: DollarSign, color: '#F59E0B' },
-    { label: 'Total Repaid', value: `$${overview?.totalRepaid?.toLocaleString() ?? 0}`, icon: Package, color: '#22C55E' },
+    { label: 'Total Loans', value: overview?.totalLoans ?? 0, icon: BarChart3, color: colors.brand },
+    { label: 'Active Loans', value: overview?.activeLoans ?? 0, icon: CreditCard, color: colors.brandBlue },
+    { label: 'Total Disbursed', value: `$${overview?.totalDisbursed?.toLocaleString() ?? 0}`, icon: DollarSign, color: colors.amber },
+    { label: 'Total Repaid', value: `$${overview?.totalRepaid?.toLocaleString() ?? 0}`, icon: Package, color: colors.brand },
   ]
 
   return (

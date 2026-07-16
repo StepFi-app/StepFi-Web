@@ -18,6 +18,7 @@ import { clsx } from 'clsx'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { CONTRACT_IDS, GRANTFOX_URL } from '../constants/config'
+import { colors } from '../constants/colors'
 
 const STELLAR_EXPERT_CONTRACT =
   'https://stellar.expert/explorer/testnet/contract'
@@ -26,9 +27,9 @@ const APP_DOWNLOAD_URL = 'https://expo.dev/accounts/stepfi-app'
 const GITHUB_ORG_URL = 'https://github.com/StepFi-app'
 
 const ACCENT = {
-  learner: '#2563EB',
-  sponsor: '#22C55E',
-  mentor: '#F59E0B',
+  learner: colors.brandBlue,
+  sponsor: colors.brand,
+  mentor: colors.amber,
 }
 
 const fadeUp: Variants = {

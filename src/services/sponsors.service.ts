@@ -1,5 +1,10 @@
 import { api } from './api'
-import type { PoolInfo } from '../types'
+import type {
+  PoolInfo,
+  UnsignedTransaction,
+  DepositPreview,
+  WithdrawPreview,
+} from '../types'
 
 export const sponsorsService = {
   getPoolInfo: async (): Promise<PoolInfo> => {
@@ -7,22 +12,13 @@ export const sponsorsService = {
     return res.data.data
   },
 
-  deposit: async (amount: number) => {
+  deposit: async (amount: number): Promise<UnsignedTransaction<DepositPreview>> => {
     const res = await api.post('/liquidity/deposit', { amount })
-    return res.data
+    return res.data.data
   },
 
-  withdraw: async (shares: number): Promise<{ xdr: string }> => {
+  withdraw: async (shares: number): Promise<UnsignedTransaction<WithdrawPreview>> => {
     const res = await api.post('/liquidity/withdraw', { shares })
-    return res.data
-  },
-
-  submitTransaction: async (signedXdr: string): Promise<{
-    hash: string
-    amount: number
-    profit: number
-  }> => {
-    const res = await api.post('/liquidity/submit', { xdr: signedXdr })
-    return res.data
+    return res.data.data
   },
 }

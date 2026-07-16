@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { sponsorsService } from '../services/sponsors.service'
+import { transactionsService } from '../services/transactions.service'
 import { useTransaction } from '../hooks/useTransaction'
 import { useWallet } from '../hooks/useWallet'
 import { useToast } from '../hooks/useToast'
@@ -9,6 +10,7 @@ import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
 import type { PoolInfo } from '../types'
+import { colors } from '../constants/colors'
 import {
   TrendingUp,
   Wallet,
@@ -51,11 +53,18 @@ export function Sponsors() {
     try {
       const result = await execute(
         () => sponsorsService.deposit(amount),
-        (signedXdr: string) => sponsorsService.submitTransaction(signedXdr),
+        async (signedXdr, transaction) => {
+          const submitted = await transactionsService.submit(signedXdr, 'deposit')
+          return {
+            hash: submitted.transactionHash,
+            amount: transaction.preview.depositAmount,
+            profit: 0,
+          }
+        },
       )
       setSuccessData(result)
       setDepositAmount('')
-      toast.success('Deposit confirmed successfully.')
+      toast.success('Deposit submitted successfully.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Deposit failed.'
       toast.error(message)
@@ -70,11 +79,20 @@ export function Sponsors() {
     try {
       const result = await execute(
         () => sponsorsService.withdraw(shares),
-        (signedXdr: string) => sponsorsService.submitTransaction(signedXdr),
+        async (signedXdr, transaction) => {
+          const submitted = await transactionsService.submit(signedXdr, 'withdraw')
+          return {
+            hash: submitted.transactionHash,
+            amount: transaction.preview.netAmount,
+            // The backend does not report realized profit on withdrawal;
+            // the success card hides the profit row when it is 0.
+            profit: 0,
+          }
+        },
       )
       setSuccessData(result)
       setWithdrawShares('')
-      toast.success('Withdrawal confirmed successfully.')
+      toast.success('Withdrawal submitted successfully.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Withdrawal failed.'
       toast.error(message)
@@ -131,7 +149,7 @@ export function Sponsors() {
             <Card>
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-blue-500/10 rounded-xl">
-                  <Wallet style={{ color: '#3B82F6' }} size={24} />
+                  <Wallet style={{ color: colors.blueLight }} size={24} />
                 </div>
                 <Badge label={`${poolInfo?.activeLoans ?? 0} loans`} variant="blue" />
               </div>
@@ -144,7 +162,7 @@ export function Sponsors() {
             <Card>
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-amber-500/10 rounded-xl">
-                  <Lock style={{ color: '#D97706' }} size={24} />
+                  <Lock style={{ color: colors.amberDark }} size={24} />
                 </div>
               </div>
               <p className="text-text-secondary text-sm mb-1">Locked Liquidity</p>
@@ -157,7 +175,7 @@ export function Sponsors() {
             <Card>
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-purple-500/10 rounded-xl">
-                  <Unlock style={{ color: '#8B5CF6' }} size={24} />
+                  <Unlock style={{ color: colors.violet }} size={24} />
                 </div>
               </div>
               <p className="text-text-secondary text-sm mb-1">Pool Utilization</p>

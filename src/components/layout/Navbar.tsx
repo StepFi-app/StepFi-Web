@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Menu, X, ExternalLink, Sun, Moon, RefreshCw } from 'lucide-react'
+import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react'
 import { useWallet } from '../../hooks/useWallet'
 import { useAppStore } from '../../stores/app.store'
-import { useRoleStore } from '../../stores/role.store'
 import { Button } from '../ui/Button'
+import { colors } from '../../constants/colors'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -21,7 +21,6 @@ export function Navbar() {
   const { address, isConnected, isAuthenticated, connectFreighter, disconnectWallet } = useWallet()
   const theme = useAppStore((s) => s.theme)
   const toggleTheme = useAppStore((s) => s.toggleTheme)
-  const { roleSelected, clearRole } = useRoleStore()
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20)
@@ -51,13 +50,13 @@ export function Navbar() {
         >
           <svg width="28" height="24" viewBox="0 0 28 24" aria-hidden="true">
             <rect x="0" y="18" width="6" height="6"
-              rx="1.5" fill="#1D4ED8"/>
+              rx="1.5" fill={colors.logo.blueDark}/>
             <rect x="8" y="12" width="6" height="12"
-              rx="1.5" fill="#2563EB"/>
+              rx="1.5" fill={colors.logo.blue}/>
             <rect x="16" y="6" width="6" height="18"
-              rx="1.5" fill="#4ADE80"/>
+              rx="1.5" fill={colors.logo.greenLight}/>
             <rect x="22" y="0" width="6" height="24"
-              rx="1.5" fill="#22C55E"/>
+              rx="1.5" fill={colors.logo.green}/>
           </svg>
           <span className="font-display font-bold text-lg
             text-text-primary group-hover:text-brand
@@ -147,18 +146,6 @@ export function Navbar() {
               >
                 Disconnect
               </Button>
-              {roleSelected && (
-                <Link
-                  to="/role-select"
-                  className="flex items-center gap-1 px-3 py-2 text-xs
-                    text-text-muted hover:text-brand transition-colors"
-                  onClick={clearRole}
-                  aria-label="Switch role"
-                >
-                  <RefreshCw size={12} aria-hidden="true" />
-                  Switch Role
-                </Link>
-              )}
             </div>
           ) : (
             <Button
@@ -220,26 +207,13 @@ export function Navbar() {
               <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
             {isConnected ? (
-              <>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={disconnectWallet}
-                >
-                  Disconnect {address.slice(0, 6)}...
-                </Button>
-                {roleSelected && (
-                  <Link
-                    to="/role-select"
-                    onClick={() => { clearRole(); setMobileOpen(false) }}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg
-                      text-sm font-medium text-text-muted hover:text-brand transition-colors"
-                  >
-                    <RefreshCw size={14} aria-hidden="true" />
-                    Switch Role
-                  </Link>
-                )}
-              </>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={disconnectWallet}
+              >
+                Disconnect {address.slice(0, 6)}...
+              </Button>
             ) : (
               <Button
                 className="w-full"

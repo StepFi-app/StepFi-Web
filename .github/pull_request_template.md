@@ -44,6 +44,7 @@ Before submitting, confirm your changes belong here:
 
 - [ ] context/architecture-context.md
 - [ ] context/code-standards.md
+- [ ] context/progress-tracker.md updated
 
 ## Mandatory before requesting review
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import type { InternalAxiosRequestConfig } from 'axios'
 
 describe('API interceptors', () => {
   beforeEach(() => {
@@ -16,7 +17,7 @@ describe('API interceptors', () => {
     const fulfilled = await getRequestHandler()
     const config = await fulfilled!({
       headers: {},
-    } as any)
+    } as unknown as InternalAxiosRequestConfig)
     expect(config.headers.Authorization).toBe('Bearer test-token')
   })
 
@@ -24,7 +25,7 @@ describe('API interceptors', () => {
     const fulfilled = await getRequestHandler()
     const config = await fulfilled!({
       headers: {},
-    } as any)
+    } as unknown as InternalAxiosRequestConfig)
     expect(config.headers.Authorization).toBeUndefined()
   })
 })
