@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { Layout } from '../components/layout/Layout'
 import { Home } from '../pages/Home'
 import { Docs } from '../pages/Docs'
@@ -14,6 +14,33 @@ import { Vouch } from '../pages/Vouch'
 import { LearnerProfile } from '../pages/LearnerProfile'
 import { NotFound } from '../pages/NotFound'
 import { History } from '../pages/History'
+import { RoleSelect } from '../pages/RoleSelect'
+import { useRoleStore } from '../stores/role.store'
+import type { UserRole } from '../stores/role.store'
+import { useWallet } from '../hooks/useWallet'
+import type { ReactNode } from 'react'
+
+function RoleGuard({
+  allowedRole,
+  children,
+}: {
+  allowedRole: UserRole
+  children: ReactNode
+}) {
+  const { isConnected } = useWallet()
+  const { role, roleSelected } = useRoleStore()
+
+  if (!isConnected) {
+    return <Navigate to="/" replace />
+  }
+  if (!roleSelected) {
+    return <Navigate to="/role-select" replace />
+  }
+  if (role !== allowedRole) {
+    return <Navigate to="/dashboard" replace />
+  }
+  return <>{children}</>
+}
 
 const router = createBrowserRouter([
   {
@@ -29,6 +56,10 @@ const router = createBrowserRouter([
     element: <Layout><Contracts /></Layout>,
   },
   {
+    path: '/role-select',
+    element: <Layout><RoleSelect /></Layout>,
+  },
+  {
     path: '/dashboard',
     element: <Layout><Dashboard /></Layout>,
   },
@@ -38,11 +69,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/vendors/dashboard',
-    element: <Layout><VendorDashboard /></Layout>,
+    element: <Layout><RoleGuard allowedRole="vendor"><VendorDashboard /></RoleGuard></Layout>,
   },
   {
     path: '/vendors/register',
-    element: <Layout><VendorRegister /></Layout>,
+    element: <Layout><RoleGuard allowedRole="vendor"><VendorRegister /></RoleGuard></Layout>,
   },
   {
     path: '/vendors/:id',
@@ -50,15 +81,15 @@ const router = createBrowserRouter([
   },
   {
     path: '/sponsors',
-    element: <Layout><Sponsors /></Layout>,
+    element: <Layout><RoleGuard allowedRole="sponsor"><Sponsors /></RoleGuard></Layout>,
   },
   {
     path: '/sponsors/onboarding',
-    element: <Layout><SponsorOnboarding /></Layout>,
+    element: <Layout><RoleGuard allowedRole="sponsor"><SponsorOnboarding /></RoleGuard></Layout>,
   },
   {
     path: '/vouch',
-    element: <Layout><Vouch /></Layout>,
+    element: <Layout><RoleGuard allowedRole="mentor"><Vouch /></RoleGuard></Layout>,
   },
   {
     path: '/learner/:walletAddress',

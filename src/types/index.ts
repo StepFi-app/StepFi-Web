@@ -47,6 +47,7 @@ export interface Vendor {
 }
 
 export interface PoolInfo {
+  totalLiquidity: number
   totalDeposits: number
   totalShares: number
   sharePrice: number

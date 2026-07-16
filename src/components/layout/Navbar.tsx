@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Menu, X, ExternalLink, Sun, Moon } from 'lucide-react'
+import { Menu, X, ExternalLink, Sun, Moon, RefreshCw } from 'lucide-react'
 import { useWallet } from '../../hooks/useWallet'
 import { useAppStore } from '../../stores/app.store'
+import { useRoleStore } from '../../stores/role.store'
 import { Button } from '../ui/Button'
 
 const navLinks = [
@@ -20,6 +21,7 @@ export function Navbar() {
   const { address, isConnected, isAuthenticated, connectFreighter, disconnectWallet } = useWallet()
   const theme = useAppStore((s) => s.theme)
   const toggleTheme = useAppStore((s) => s.toggleTheme)
+  const { roleSelected, clearRole } = useRoleStore()
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20)
@@ -145,6 +147,18 @@ export function Navbar() {
               >
                 Disconnect
               </Button>
+              {roleSelected && (
+                <Link
+                  to="/role-select"
+                  className="flex items-center gap-1 px-3 py-2 text-xs
+                    text-text-muted hover:text-brand transition-colors"
+                  onClick={clearRole}
+                  aria-label="Switch role"
+                >
+                  <RefreshCw size={12} aria-hidden="true" />
+                  Switch Role
+                </Link>
+              )}
             </div>
           ) : (
             <Button
@@ -206,13 +220,26 @@ export function Navbar() {
               <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
             {isConnected ? (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={disconnectWallet}
-              >
-                Disconnect {address.slice(0, 6)}...
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={disconnectWallet}
+                >
+                  Disconnect {address.slice(0, 6)}...
+                </Button>
+                {roleSelected && (
+                  <Link
+                    to="/role-select"
+                    onClick={() => { clearRole(); setMobileOpen(false) }}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg
+                      text-sm font-medium text-text-muted hover:text-brand transition-colors"
+                  >
+                    <RefreshCw size={14} aria-hidden="true" />
+                    Switch Role
+                  </Link>
+                )}
+              </>
             ) : (
               <Button
                 className="w-full"
