@@ -12,6 +12,8 @@ import type { PoolInfo } from '../types'
 import {
   TrendingUp,
   Wallet,
+  Lock,
+  Unlock,
   ArrowUpRight,
   ArrowDownLeft,
   CheckCircle2,
@@ -112,17 +114,17 @@ export function Sponsors() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Card>
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-brand/10 rounded-xl">
                   <TrendingUp className="text-brand" size={24} />
                 </div>
-                <Badge label={`+${poolInfo?.apy || 0}% APY`} variant="green" />
+                <Badge label={`${poolInfo?.apy ?? 0}% APY`} variant="green" />
               </div>
               <p className="text-text-secondary text-sm mb-1">Total Deposits</p>
               <h3 className="text-2xl font-bold text-text-primary">
-                {poolLoading ? <Spinner size={20} /> : `${(poolInfo?.totalDeposits ?? 0).toLocaleString()} USDC`}
+                {poolLoading ? <Spinner size={20} /> : `${poolInfo!.totalDeposits.toLocaleString()} USDC`}
               </h3>
             </Card>
 
@@ -131,43 +133,82 @@ export function Sponsors() {
                 <div className="p-3 bg-blue-500/10 rounded-xl">
                   <Wallet style={{ color: '#3B82F6' }} size={24} />
                 </div>
+                <Badge label={`${poolInfo?.activeLoans ?? 0} loans`} variant="blue" />
               </div>
               <p className="text-text-secondary text-sm mb-1">Available Liquidity</p>
               <h3 className="text-2xl font-bold text-text-primary">
-                {poolLoading ? <Spinner size={20} /> : `${(poolInfo?.availableLiquidity ?? 0).toLocaleString()} USDC`}
+                {poolLoading ? <Spinner size={20} /> : `${poolInfo!.availableLiquidity.toLocaleString()} USDC`}
               </h3>
+            </Card>
+
+            <Card>
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-amber-500/10 rounded-xl">
+                  <Lock style={{ color: '#D97706' }} size={24} />
+                </div>
+              </div>
+              <p className="text-text-secondary text-sm mb-1">Locked Liquidity</p>
+              <h3 className="text-2xl font-bold text-text-primary">
+                {poolLoading ? <Spinner size={20} /> : `${poolInfo!.lockedLiquidity.toLocaleString()} USDC`}
+              </h3>
+              <p className="text-text-muted text-xs mt-1">Backing active loans</p>
+            </Card>
+
+            <Card>
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 bg-purple-500/10 rounded-xl">
+                  <Unlock style={{ color: '#8B5CF6' }} size={24} />
+                </div>
+              </div>
+              <p className="text-text-secondary text-sm mb-1">Pool Utilization</p>
+              <h3 className="text-2xl font-bold text-text-primary">
+                {poolLoading ? <Spinner size={20} /> : `${poolInfo!.utilization.toFixed(1)}%`}
+              </h3>
+              <p className="text-text-muted text-xs mt-1">
+                {poolInfo ? (
+                  <>
+                    {poolInfo.lockedLiquidity.toLocaleString()} / {poolInfo.totalLiquidity.toLocaleString()} USDC
+                  </>
+                ) : '—'}
+              </p>
             </Card>
           </div>
 
-          <Card>
-            <h3 className="font-display font-bold text-xl text-text-primary mb-6">
-              Liquidity Pool Details
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div>
-                <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Total Shares</p>
-                <p className="font-mono text-text-primary">
-                  {poolLoading ? '...' : (poolInfo?.totalShares ?? '—').toLocaleString()}
-                </p>
+          {poolInfo && (
+            <Card>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-display font-semibold text-text-primary">Liquidity Breakdown</h3>
+                <span className="text-xs text-text-muted">
+                  Share Price: {poolInfo.sharePrice.toFixed(4)} USDC &middot; {poolInfo.totalShares.toLocaleString()} shares
+                </span>
               </div>
-              <div>
-                <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Share Price</p>
-                <p className="font-mono text-text-primary">
-                  {poolLoading ? '...' : `${(poolInfo?.sharePrice ?? 0).toFixed(4)} USDC`}
-                </p>
+              <div className="w-full h-4 bg-surface rounded-full overflow-hidden flex" role="progressbar"
+                aria-valuenow={poolInfo.utilization} aria-valuemin={0} aria-valuemax={100}
+                aria-label={`Pool utilization: ${poolInfo.utilization.toFixed(1)}%`}
+              >
+                <div
+                  className="h-full bg-amber-500 transition-all duration-500"
+                  style={{ width: `${Math.min(poolInfo.utilization, 100)}%` }}
+                  title={`Locked: ${poolInfo.lockedLiquidity.toLocaleString()} USDC`}
+                />
+                <div
+                  className="h-full bg-blue-500 transition-all duration-500"
+                  style={{ width: `${Math.max(100 - poolInfo.utilization, 0)}%` }}
+                  title={`Available: ${poolInfo.availableLiquidity.toLocaleString()} USDC`}
+                />
               </div>
-              <div>
-                <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Locked Capital</p>
-                <p className="font-mono text-text-primary">
-                  {poolLoading ? '...' : `${(poolInfo?.lockedLiquidity ?? 0).toLocaleString()} USDC`}
-                </p>
+              <div className="flex justify-between mt-2 text-xs text-text-muted">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+                  Locked ({poolInfo.lockedLiquidity.toLocaleString()} USDC)
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                  Available ({poolInfo.availableLiquidity.toLocaleString()} USDC)
+                </span>
               </div>
-              <div>
-                <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Status</p>
-                <p className="text-brand font-medium">Active</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">

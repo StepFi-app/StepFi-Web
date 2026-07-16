@@ -47,13 +47,16 @@ export interface Vendor {
 }
 
 export interface PoolInfo {
-  totalLiquidity: number
   totalDeposits: number
+  totalLiquidity: number
+  lockedLiquidity: number
+  availableLiquidity: number
   totalShares: number
   sharePrice: number
-  availableLiquidity: number
-  lockedLiquidity: number
   apy: number
+  utilization: number
+  totalInvestors: number
+  activeLoans: number
 }
 
 export interface VendorDashboardOverview {

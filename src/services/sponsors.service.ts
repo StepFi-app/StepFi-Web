@@ -4,16 +4,7 @@ import type { PoolInfo } from '../types'
 export const sponsorsService = {
   getPoolInfo: async (): Promise<PoolInfo> => {
     const res = await api.get('/liquidity/overview')
-    const d = res.data?.data ?? res.data
-    return {
-      totalLiquidity: d.totalLiquidity ?? 0,
-      totalDeposits: d.totalLiquidity ?? 0,
-      totalShares: d.totalShares ?? 0,
-      sharePrice: d.sharePrice ?? 1,
-      availableLiquidity: d.totalLiquidity ?? 0,
-      lockedLiquidity: d.lockedLiquidity ?? 0,
-      apy: d.apy ?? 0,
-    }
+    return res.data.data
   },
 
   deposit: async (amount: number) => {
