@@ -54,11 +54,19 @@ api.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
+      const hadAccessToken = Boolean(localStorage.getItem('accessToken'))
       const refreshToken = localStorage.getItem('refreshToken')
       if (!refreshToken) {
+        isRefreshing = false
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
-        window.location.href = '/'
+        // Only force-redirect users who were never authenticated.
+        // If a token existed (e.g. expired session with no refresh
+        // token), let the caller surface the error instead of
+        // tearing the page down.
+        if (!hadAccessToken) {
+          window.location.href = '/'
+        }
         return Promise.reject(error)
       }
 

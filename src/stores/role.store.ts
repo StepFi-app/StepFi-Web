@@ -3,6 +3,12 @@ import { persist } from 'zustand/middleware'
 
 export type UserRole = 'sponsor' | 'vendor' | 'mentor' | null
 
+export const ROLE_ROUTES: Record<Exclude<UserRole, null>, string> = {
+  sponsor: '/sponsors',
+  vendor: '/vendors/dashboard',
+  mentor: '/vouch',
+}
+
 interface RoleStore {
   role: UserRole
   roleSelected: boolean

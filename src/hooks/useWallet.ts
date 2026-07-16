@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useWalletStore } from '../stores/wallet.store'
 import { useUserStore } from '../stores/user.store'
+import { useRoleStore, ROLE_ROUTES } from '../stores/role.store'
 import {
   isConnected,
   requestAccess,
@@ -8,6 +10,7 @@ import {
 import { useAuth } from './useAuth'
 
 export const useWallet = () => {
+  const navigate = useNavigate()
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectError, setConnectError] = useState<string | null>(null)
   const {
@@ -39,6 +42,15 @@ export const useWallet = () => {
       setWallet(access.address, 'freighter')
 
       await authenticate(access.address)
+
+      // First-time users pick a role; returning users go straight
+      // to their role-specific dashboard.
+      const { role, roleSelected } = useRoleStore.getState()
+      if (roleSelected && role) {
+        navigate(ROLE_ROUTES[role])
+      } else {
+        navigate('/role-select')
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to connect'
       setConnectError(message)
