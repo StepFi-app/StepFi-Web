@@ -66,10 +66,10 @@ function StepIndicator({ current }: { current: number }) {
 function StepWelcome({ onNext }: { onNext: () => void }) {
   return (
     <motion.div key="welcome" variants={fadeSlide} initial="initial" animate="animate" exit="exit" className="text-center max-w-lg mx-auto">
-      <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/30 flex items-center justify-center mx-auto mb-6">
-        <Wallet size={32} className="text-brand" />
+      <div className="w-12 h-12 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center mx-auto mb-4">
+        <Wallet size={20} className="text-brand" />
       </div>
-      <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
         Welcome to the Sponsor Pool
       </h1>
       <p className="text-text-secondary leading-relaxed mb-3">
@@ -189,7 +189,7 @@ function StepPoolHealth({ onNext }: { onNext: () => void }) {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center py-8">
           <Spinner />
         </div>
       ) : pool ? (
@@ -332,7 +332,7 @@ export function SponsorOnboarding() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16">
+    <div className="max-w-3xl mx-auto px-6 py-8">
       <StepIndicator current={step} />
 
       <AnimatePresence mode="wait">

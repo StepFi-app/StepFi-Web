@@ -58,7 +58,7 @@ const COPY_STYLES: Components = {
     )
   },
   h1({ children }) {
-    return <h1 className="font-display font-bold text-3xl text-text-primary mb-6 mt-0">{children}</h1>
+    return <h1 className="font-display font-semibold text-xl text-text-primary mb-4 mt-0">{children}</h1>
   },
   h2({ children }) {
     return <h2 className="font-display font-bold text-xl text-text-primary mb-4 mt-10 pb-2 border-b border-border">{children}</h2>

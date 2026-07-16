@@ -11,7 +11,7 @@ export function Card({ children, className, hover }: CardProps) {
   return (
     <div
       className={clsx(
-        'rounded-2xl p-6',
+        'rounded-xl p-5',
         'border border-border bg-surface',
         hover && 'hover:border-brand/30 transition-colors',
         className

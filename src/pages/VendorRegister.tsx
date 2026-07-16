@@ -87,8 +87,8 @@ export function VendorRegister() {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
           Authentication required
         </h1>
         <p className="text-text-secondary">Connect your wallet to register as a vendor.</p>
@@ -97,9 +97,9 @@ export function VendorRegister() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-2">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-2">
           Register as Vendor
         </h1>
         <p className="text-text-muted">

@@ -158,8 +158,8 @@ export function Docs() {
           {searchQuery.trim() && searchResults ? (
             <section aria-label="Search results">
               {searchResults.length === 0 ? (
-                <div className="text-center py-16">
-                  <FileText size={40} className="mx-auto text-text-muted mb-4" aria-hidden="true" />
+                <div className="text-center py-8">
+                  <FileText size={24} className="mx-auto text-text-muted mb-4" aria-hidden="true" />
                   <p className="text-text-secondary">No results found for <span className="text-text-primary font-medium">&quot;{searchQuery}&quot;</span></p>
                   <p className="text-text-muted text-sm mt-2">Try a different search term.</p>
                 </div>

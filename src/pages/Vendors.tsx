@@ -30,9 +30,9 @@ export function Vendors() {
   const totalPages = data?.totalPages ?? 1
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-2">Vendors</h1>
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-2">Vendors</h1>
         <p className="text-text-muted">Browse verified learning vendors.</p>
       </div>
 

@@ -76,8 +76,8 @@ export function History() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-display font-semibold text-xl text-text-primary mb-4">
           Connect your wallet to view history
         </h2>
         <Link to="/dashboard">
@@ -88,7 +88,7 @@ export function History() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display font-bold text-2xl">Transaction History</h1>
         <div className="flex items-center gap-2">

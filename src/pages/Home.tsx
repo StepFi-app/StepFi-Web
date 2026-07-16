@@ -81,7 +81,7 @@ function SectionHeader({ title, subtitle, align = 'center' }: SectionHeaderProps
         align === 'center' && 'text-center max-w-2xl mx-auto'
       )}
     >
-      <h2 className="font-display font-bold text-3xl md:text-4xl text-text-primary mb-4">
+      <h2 className="font-display font-semibold text-2xl md:text-3xl text-text-primary mb-4">
         {title}
       </h2>
       <p className="text-text-secondary text-lg">{subtitle}</p>
@@ -280,7 +280,7 @@ function HeroSection() {
   return (
     <section className="relative flex items-center min-h-[calc(100vh-5rem)] overflow-hidden">
       <DotGrid />
-      <div className="relative max-w-7xl mx-auto px-6 md:px-12 w-full py-20 text-center">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-12 w-full py-16 text-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,7 +300,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.05 }}
-          className="font-display font-bold text-4xl sm:text-5xl md:text-[64px] md:leading-[1.05] text-text-primary mb-6"
+          className="font-display font-bold text-3xl sm:text-4xl text-text-primary mb-6"
         >
           The infrastructure behind
           <br />
@@ -437,7 +437,7 @@ function SponsorsSection() {
         title="Put your capital to work."
         subtitle="Fund the next generation of developers and earn yield while doing it."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
         <motion.div variants={fadeUp}>
           <ul className="space-y-4">
             {sponsorBenefits.map((benefit) => (
@@ -606,7 +606,7 @@ function MentorsSection() {
         title="Your reputation can open doors for others."
         subtitle="Vouch for learners you believe in. Help them access better loan terms."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={fadeUp}>
           <ol className="space-y-5">
             {mentorSteps.map((step, index) => (
@@ -734,9 +734,9 @@ function FooterLinksStrip() {
       whileInView="visible"
       viewport={{ once: true, margin: '-80px' }}
       variants={stagger}
-      className="max-w-7xl mx-auto px-6 md:px-12 pb-12"
+      className="max-w-7xl mx-auto px-6 md:px-12 pb-8"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-12 border-t border-border">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-border">
         {footerColumns.map((column) => (
           <motion.div key={column.title} variants={fadeUp}>
             <h3 className="font-display font-semibold text-text-primary mb-4">

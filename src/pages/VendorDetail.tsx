@@ -26,9 +26,9 @@ export function VendorDetail() {
 
   if (error || !vendor) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-24 text-center">
-        <Store className="mx-auto text-text-muted mb-4" size={48} />
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-2">Vendor not found</h1>
+      <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+        <Store className="mx-auto text-text-muted mb-4" size={32} />
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-2">Vendor not found</h1>
         <p className="text-text-muted mb-6">The vendor you're looking for doesn't exist.</p>
         <Link to="/vendors" className="text-brand hover:underline">Back to vendors</Link>
       </div>
@@ -36,7 +36,7 @@ export function VendorDetail() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-6 py-8">
       <Link
         to="/vendors"
         className="inline-flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors mb-8"
@@ -51,7 +51,7 @@ export function VendorDetail() {
             <Store className="text-brand" size={32} />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display font-bold text-3xl text-text-primary mb-2">{vendor.name}</h1>
+            <h1 className="font-display font-semibold text-2xl text-text-primary mb-2">{vendor.name}</h1>
             <div className="flex flex-wrap items-center gap-3">
               <Badge label={vendor.category} variant="green" />
               <div className="flex items-center gap-1 text-text-muted text-sm">

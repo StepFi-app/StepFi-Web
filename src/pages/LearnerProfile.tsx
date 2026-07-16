@@ -143,8 +143,8 @@ export function LearnerProfile() {
 
   if (!walletAddress) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">Invalid URL</h2>
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-display font-semibold text-xl text-text-primary mb-4">Invalid URL</h2>
         <p className="text-text-secondary">No wallet address provided.</p>
       </div>
     )
@@ -152,7 +152,7 @@ export function LearnerProfile() {
 
   if (profileQuery.isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
         <Spinner size={32} />
       </div>
     )
@@ -160,8 +160,8 @@ export function LearnerProfile() {
 
   if (profileQuery.isError) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">Profile not found</h2>
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-display font-semibold text-xl text-text-primary mb-4">Profile not found</h2>
         <p className="text-text-secondary">Could not load profile for this wallet address.</p>
       </div>
     )
@@ -177,7 +177,7 @@ export function LearnerProfile() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-3">
@@ -233,7 +233,7 @@ export function LearnerProfile() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 size={18} className="text-text-secondary" />

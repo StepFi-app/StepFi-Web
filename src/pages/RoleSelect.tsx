@@ -40,8 +40,8 @@ export function RoleSelect() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
           Connect your wallet to continue
         </h1>
         <p className="text-text-secondary">
@@ -52,9 +52,9 @@ export function RoleSelect() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="text-center mb-12">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-3">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-3">
           What are you here to do?
         </h1>
         <p className="text-text-muted text-lg">
@@ -71,7 +71,7 @@ export function RoleSelect() {
               setRole(role.value)
               navigate(role.route)
             }}
-            className="rounded-2xl p-8 text-left cursor-pointer
+            className="rounded-xl p-6 text-left cursor-pointer
               transition-all hover:scale-[1.02] focus-visible:outline-none
               focus-visible:ring-2 focus-visible:ring-brand"
             style={{
@@ -80,7 +80,7 @@ export function RoleSelect() {
             }}
             aria-label={`Select ${role.title} role`}
           >
-            <role.icon size={36} style={{ color: role.color }} className="mb-4" aria-hidden="true" />
+            <role.icon size={24} style={{ color: role.color }} className="mb-3" aria-hidden="true" />
             <h3 className="font-display font-bold text-xl text-text-primary mb-2">
               {role.title}
             </h3>
