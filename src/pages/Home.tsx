@@ -724,39 +724,7 @@ function ContractsSection() {
 }
 
 function ContributeSection() {
-  return (
-    <Section>
-      <motion.div
-        variants={fadeUp}
-        className="rounded-2xl p-10 md:p-14 text-center"
-        style={{
-          background: 'rgba(13,27,42,0.6)',
-          border: '1px solid rgba(30,58,82,0.6)',
-        }}
-      >
-        <h2 className="font-display font-bold text-3xl md:text-4xl text-text-primary mb-4">
-          StepFi is open source.
-        </h2>
-        <p className="text-text-secondary max-w-xl mx-auto mb-8">
-          37 labeled issues across 3 repos. Good first issues, medium, and
-          hard. Earn Stellar rewards through Grantfox for every merged PR.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href={GRANTFOX_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" className="w-full sm:w-auto">
-              Contribute on Grantfox
-              <ExternalLink size={16} />
-            </Button>
-          </a>
-          <a href={GITHUB_ORG_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Browse Issues
-            </Button>
-          </a>
-        </div>
-      </motion.div>
-    </Section>
-  )
+  return null
 }
 
 function FooterLinksStrip() {
