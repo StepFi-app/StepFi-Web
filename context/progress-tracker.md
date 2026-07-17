@@ -6,6 +6,19 @@ pure chore/docs commits). Direct pushes to main must also be logged here.
 
 ---
 
+## 2026-07-17
+
+- Fixed intermittent 401 on wallet-connect / role selection: the axios
+  response interceptor rotated the refresh token in localStorage only,
+  leaving the Zustand `useUserStore` holding the now-consumed token
+  (refresh tokens are single-use server-side). The next refresh — e.g.
+  `RoleSelect`'s post-`setRole` token refresh — then sent a stale token
+  and got a 401, bouncing the user home. `useUserStore` is now the single
+  source of truth: the interceptor reads/writes all tokens through
+  `setTokens`/`clearTokens`, so localStorage and the store can no longer
+  drift apart. Added a regression test for two consecutive refreshes
+  (commit 2e12867). Deployed to Netlify prod (deploy 6a5a5108).
+
 ## 2026-07-16
 
 - Roles are now wallet-bound and server-side: role selection calls
