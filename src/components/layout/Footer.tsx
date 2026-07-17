@@ -3,9 +3,9 @@ import { colors } from '../../constants/colors'
 
 export function Footer() {
   return (
-    <footer className="border-t mt-20"
+    <footer className="border-t mt-16"
       style={{ borderColor: 'rgba(30,58,82,0.4)' }}>
-      <div className="max-w-7xl mx-auto px-6 py-8
+      <div className="max-w-7xl mx-auto px-6 py-5
         flex flex-col md:flex-row items-center
         justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -27,7 +27,7 @@ export function Footer() {
           </span>
         </div>
         <nav aria-label="Footer navigation">
-          <div className="flex items-center gap-6 text-sm
+          <div className="flex items-center gap-4 text-sm
             text-text-muted">
             <a href="https://github.com/StepFi-app"
               target="_blank"

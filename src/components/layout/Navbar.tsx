@@ -39,7 +39,7 @@ export function Navbar() {
       }`}
       aria-label="Main navigation"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-2.5
         flex items-center justify-between">
 
         <Link 
@@ -96,14 +96,16 @@ export function Navbar() {
           })}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg text-text-muted hover:text-text-primary
               hover:bg-surface transition-colors"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark'
+                ? <Sun size={18} className="transition-transform duration-300 hover:rotate-12" />
+                : <Moon size={18} className="transition-transform duration-300 hover:rotate-12" />}
           </button>
 
           <a
@@ -176,7 +178,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden px-4 py-4 flex flex-col gap-1 bg-bg/98"
+        <div className="md:hidden px-4 py-3 flex flex-col gap-1 bg-bg/98"
           style={{
             borderTop: '1px solid rgb(var(--color-border) / 0.4)',
           }}>
@@ -203,7 +205,9 @@ export function Navbar() {
                 text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark'
+              ? <Sun size={18} className="transition-transform duration-300 hover:rotate-12" />
+              : <Moon size={18} className="transition-transform duration-300 hover:rotate-12" />}
               <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
             {isConnected ? (
