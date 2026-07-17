@@ -8,7 +8,14 @@ import { useToast } from '../hooks/useToast'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 
-const CATEGORIES = ['Electronics', 'Bootcamp', 'OnlineCourse', 'DevTools', 'Books'] as const
+// Values map to the backend VendorType enum; labels are display-only.
+const CATEGORIES = [
+  { value: 'school', label: 'School' },
+  { value: 'bootcamp', label: 'Bootcamp' },
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'books', label: 'Books' },
+  { value: 'subscriptions', label: 'Subscriptions' },
+] as const
 
 interface FormData {
   name: string
@@ -135,7 +142,7 @@ export function VendorRegister() {
             >
               <option value="">Select a category</option>
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>
             {errors.category && <p className="text-red-400 text-sm mt-1" role="alert">{errors.category}</p>}

@@ -8,7 +8,8 @@ import { Spinner } from '../components/ui/Spinner'
 import { Badge } from '../components/ui/Badge'
 import type { Vendor, PaginatedResponse } from '../types'
 
-const CATEGORIES = ['All', 'Electronics', 'Bootcamp', 'OnlineCourse', 'DevTools', 'Books']
+// 'All' clears the filter; the rest map to the backend VendorType enum.
+const CATEGORIES = ['All', 'School', 'Bootcamp', 'Electronics', 'Books', 'Subscriptions']
 
 export function Vendors() {
   const [page, setPage] = useState(1)
