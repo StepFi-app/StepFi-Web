@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { VouchRequest, ActiveVouch, VouchResponse } from '../types'
+import type { VouchRequest, ActiveVouch, UnsignedTransaction } from '../types'
 
 /**
  * Backend DTO shapes (StepFi-API vouching module). The frontend view models
@@ -84,11 +84,15 @@ export const vouchingService = {
   },
 
   // POST /vouching/approve — mentor approves a pending vouch request for a learner.
-  submitVouch: async (learnerAddress: string, _txHash?: string): Promise<VouchResponse> => {
-    const res = await api.post<VouchResponse>('/vouching/approve', {
+  buildVouch: async (learnerAddress: string): Promise<UnsignedTransaction<{ learnerAddress: string }>> => {
+    const res = await api.post('/vouching/approve', {
       learnerWallet: learnerAddress,
     })
-    return res.data
+    return res.data.data
+  },
+
+  declineVouch: async (learnerAddress: string): Promise<void> => {
+    await api.post('/vouching/decline', { learnerWallet: learnerAddress })
   },
 
   // DELETE /vouching/:id — mentor revokes a vouch they created.

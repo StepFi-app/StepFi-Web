@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw, Clock, DollarSign, Percent, Ban, ExternalLink, XCircle } from 'lucide-react'
-import { signTransaction, isConnected, requestAccess } from '@stellar/freighter-api'
 import { vouchingService } from '../services/vouching.service'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -12,7 +11,7 @@ import { VouchRequestCard } from '../components/vouch/VouchRequestCard'
 import { VouchImpactPreview } from '../components/vouch/VouchImpactPreview'
 import { useWallet } from '../hooks/useWallet'
 import { useToast } from '../hooks/useToast'
-import { STELLAR_NETWORK } from '../constants/config'
+import { useTransaction } from '../hooks/useTransaction'
 import type { VouchRequest } from '../types'
 
 const REPAYMENT_VARIANTS: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted'> = {
@@ -98,7 +97,7 @@ export function Vouch() {
   const [activeTab, setActiveTab] = useState<'requests' | 'active'>('requests')
   const [previewRequest, setPreviewRequest] = useState<VouchRequest | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<string | null>(null)
-  const [decliningId, setDecliningId] = useState<string | null>(null)
+  const { execute, isLoading: transactionPending } = useTransaction()
 
   const requestsQuery = useQuery({
     queryKey: ['vouch-requests'],
@@ -110,17 +109,14 @@ export function Vouch() {
     queryFn: vouchingService.getMyVouches,
   })
 
-  const submitMutation = useMutation({
-    mutationFn: ({ learnerAddress, txHash }: { learnerAddress: string; txHash: string }) =>
-      vouchingService.submitVouch(learnerAddress, txHash),
+  const declineMutation = useMutation({
+    mutationFn: vouchingService.declineVouch,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vouch-requests'] })
-      queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
-      setPreviewRequest(null)
-      toast.success('Vouch submitted successfully.')
+      toast.success('Vouch request declined.')
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to submit vouch.'
+      const message = error instanceof Error ? error.message : 'Failed to decline vouch.'
       toast.error(message)
     },
   })
@@ -146,41 +142,22 @@ export function Vouch() {
         await connectFreighter()
       }
 
-      const connection = await isConnected()
-      if (!connection.isConnected) {
-        throw new Error('Freighter not installed. Download at freighter.app')
-      }
-
-      const access = await requestAccess()
-      if (access.error) {
-        throw new Error(access.error.message)
-      }
-
-      const txXdr = `AAAAAgAAAABz...${Math.random().toString(36).slice(2)}`
-      const result = await signTransaction(txXdr, {
-        networkPassphrase:
-          STELLAR_NETWORK === 'TESTNET'
-            ? 'Test SDF Network ; September 2015'
-            : 'Public Global Stellar Network ; September 2015',
-      })
-
-      const txHash = 'signedTxXdr' in result ? (result as { signedTxXdr: string }).signedTxXdr : ''
-
-      submitMutation.mutate({
-        learnerAddress: previewRequest.learnerAddress,
-        txHash,
-      })
+      const result = await execute(
+        () => vouchingService.buildVouch(previewRequest.learnerAddress),
+        'vouch',
+      )
+      if (!result.ok) throw new Error(result.message)
+      await queryClient.invalidateQueries({ queryKey: ['vouch-requests'] })
+      await queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
+      setPreviewRequest(null)
+      toast.success('Vouch confirmed successfully.')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Transaction failed'
       toast.error(message)
     }
   }
 
-  const handleDecline = async (id: string) => {
-    setDecliningId(id)
-    await new Promise((r) => setTimeout(r, 600))
-    setDecliningId(null)
-  }
+  const handleDecline = async (id: string) => declineMutation.mutate(id)
 
   const tabs = [
     {
@@ -298,7 +275,7 @@ export function Vouch() {
                   }
                   onVouch={setPreviewRequest}
                   onDecline={handleDecline}
-                  declining={decliningId === request.id}
+                  declining={declineMutation.isPending && declineMutation.variables === request.id}
                 />
               ))}
             </div>
@@ -450,7 +427,7 @@ export function Vouch() {
           request={previewRequest}
           onConfirm={handleVouchConfirm}
           onClose={() => setPreviewRequest(null)}
-          confirming={submitMutation.isPending}
+          confirming={transactionPending}
         />
       )}
 
