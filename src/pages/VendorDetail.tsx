@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { MapPin, Star, Globe, FileText, Store, ArrowLeft } from 'lucide-react'
 import { vendorsService } from '../services/vendors.service'
+import { queryKeys } from '../services/queryKeys'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
@@ -11,7 +12,7 @@ export function VendorDetail() {
   const { id } = useParams<{ id: string }>()
 
   const { data: vendor, isLoading, error } = useQuery<Vendor>({
-    queryKey: ['vendor', id],
+    queryKey: queryKeys.vendors.detail(id!),
     queryFn: () => vendorsService.getVendor(id!),
     enabled: !!id,
   })

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useWallet } from '../hooks/useWallet'
 import { reputationService } from '../services/reputation.service'
+import { queryKeys } from '../services/queryKeys'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -119,25 +120,25 @@ export function LearnerProfile() {
   const { walletAddress } = useParams<{ walletAddress: string }>()
 
   const profileQuery = useQuery<LearnerProfile>({
-    queryKey: ['learner-profile', walletAddress],
+    queryKey: queryKeys.reputation.profile(walletAddress!),
     queryFn: () => reputationService.getProfile(walletAddress!),
     enabled: !!walletAddress,
   })
 
   const historyQuery = useQuery<ReputationHistoryPoint[]>({
-    queryKey: ['reputation-history', walletAddress],
+    queryKey: queryKeys.reputation.history(walletAddress!),
     queryFn: () => reputationService.getHistory(walletAddress!),
     enabled: !!walletAddress,
   })
 
   const loansQuery = useQuery<Loan[]>({
-    queryKey: ['learner-loans', walletAddress],
+    queryKey: queryKeys.loans.borrower(walletAddress!),
     queryFn: () => reputationService.getLearnerLoans(walletAddress!),
     enabled: !!walletAddress,
   })
 
   const vouchesQuery = useQuery<Vouch[]>({
-    queryKey: ['vouches', walletAddress],
+    queryKey: queryKeys.vouches.forLearner(walletAddress!),
     queryFn: () => reputationService.getVouches(walletAddress!),
     enabled: !!walletAddress,
   })

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw, Clock, DollarSign, Percent, Ban, ExternalLink, XCircle } from 'lucide-react'
 import { signTransaction, isConnected, requestAccess } from '@stellar/freighter-api'
 import { vouchingService } from '../services/vouching.service'
+import { queryKeys } from '../services/queryKeys'
+import { useSubmitVouch, useRevokeVouch } from '../hooks/useOptimisticVouch'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -91,7 +93,6 @@ function ConfirmRevokeDialog({
 
 export function Vouch() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { toast } = useToast()
   const { isConnected: walletConnected, connectFreighter } = useWallet()
 
@@ -101,42 +102,17 @@ export function Vouch() {
   const [decliningId, setDecliningId] = useState<string | null>(null)
 
   const requestsQuery = useQuery({
-    queryKey: ['vouch-requests'],
+    queryKey: queryKeys.vouches.requests(),
     queryFn: vouchingService.getVouchRequests,
   })
 
   const activeVouchesQuery = useQuery({
-    queryKey: ['my-vouches'],
+    queryKey: queryKeys.vouches.myVouches(),
     queryFn: vouchingService.getMyVouches,
   })
 
-  const submitMutation = useMutation({
-    mutationFn: ({ learnerAddress, txHash }: { learnerAddress: string; txHash: string }) =>
-      vouchingService.submitVouch(learnerAddress, txHash),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vouch-requests'] })
-      queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
-      setPreviewRequest(null)
-      toast.success('Vouch submitted successfully.')
-    },
-    onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to submit vouch.'
-      toast.error(message)
-    },
-  })
-
-  const revokeMutation = useMutation({
-    mutationFn: (id: string) => vouchingService.revokeVouch(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
-      setRevokeTarget(null)
-      toast.success('Vouch revoked successfully.')
-    },
-    onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Failed to revoke vouch.'
-      toast.error(message)
-    },
-  })
+  const submitMutation = useSubmitVouch()
+  const revokeMutation = useRevokeVouch()
 
   const handleVouchConfirm = async () => {
     if (!previewRequest) return
@@ -166,10 +142,22 @@ export function Vouch() {
 
       const txHash = 'signedTxXdr' in result ? (result as { signedTxXdr: string }).signedTxXdr : ''
 
-      submitMutation.mutate({
-        learnerAddress: previewRequest.learnerAddress,
-        txHash,
-      })
+      submitMutation.mutate(
+        {
+          learnerAddress: previewRequest.learnerAddress,
+          txHash,
+        },
+        {
+          onSuccess: () => {
+            setPreviewRequest(null)
+            toast.success('Vouch submitted successfully.')
+          },
+          onError: (error) => {
+            const message = error instanceof Error ? error.message : 'Failed to submit vouch.'
+            toast.error(message)
+          },
+        }
+      )
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Transaction failed'
       toast.error(message)
@@ -457,7 +445,18 @@ export function Vouch() {
       <ConfirmRevokeDialog
         open={!!revokeTarget}
         onConfirm={() => {
-          if (revokeTarget) revokeMutation.mutate(revokeTarget)
+          if (revokeTarget) {
+            revokeMutation.mutate(revokeTarget, {
+              onSuccess: () => {
+                setRevokeTarget(null)
+                toast.success('Vouch revoked successfully.')
+              },
+              onError: (error) => {
+                const message = error instanceof Error ? error.message : 'Failed to revoke vouch.'
+                toast.error(message)
+              },
+            })
+          }
         }}
         onCancel={() => setRevokeTarget(null)}
         revoking={revokeMutation.isPending}
