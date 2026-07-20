@@ -7,7 +7,7 @@ import { Wallet, BarChart3, ArrowRight, Check, AlertTriangle, ExternalLink } fro
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Spinner } from '../components/ui/Spinner'
-import { poolService } from '../services/pool.service'
+import { sponsorsService } from '../services/sponsors.service'
 import { useAppStore } from '../stores/app.store'
 import { useWallet } from '../hooks/useWallet'
 import { GRANTFOX_URL } from '../constants/config'
@@ -165,7 +165,7 @@ function StepPoolHealth({ onNext }: { onNext: () => void }) {
   const [depositAmount, setDepositAmount] = useState('')
   const { data: pool, isLoading } = useQuery({
     queryKey: ['pool-info'],
-    queryFn: () => poolService.getPoolInfo(),
+    queryFn: () => sponsorsService.getPoolInfo(),
     refetchInterval: 30_000,
   })
 
