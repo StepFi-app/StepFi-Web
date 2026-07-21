@@ -71,14 +71,15 @@ async function simulateContractCall<T>(
     throw new Error(`Simulation error: ${simResult.error}`)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawSim = simResult as any
-  if (rawSim.result?.retval) {
-    return scValToNative(rawSim.result.retval) as T
+  const rawSim = simResult as unknown as Record<string, unknown>
+  const resultObj = rawSim.result as Record<string, unknown> | undefined
+  if (resultObj && resultObj.retval) {
+    return scValToNative(resultObj.retval as xdr.ScVal) as T
   }
 
-  if (Array.isArray(rawSim.results) && rawSim.results[0]?.retval) {
-    return scValToNative(rawSim.results[0].retval) as T
+  const resultsArr = rawSim.results as Array<Record<string, unknown>> | undefined
+  if (Array.isArray(resultsArr) && resultsArr[0] && resultsArr[0].retval) {
+    return scValToNative(resultsArr[0].retval as xdr.ScVal) as T
   }
 
   throw new Error('No return value found in Soroban simulation result.')
