@@ -1,5 +1,19 @@
 export type WalletType = 'freighter' | 'lobstr' | null
 
+/** Matches backend UserProfileDto (GET /users/me `data` payload) */
+export interface UserProfile {
+  wallet: string
+  name: string | null
+  avatar: string | null
+  role: 'sponsor' | 'vendor' | 'mentor' | null
+  preferences: {
+    notifications: boolean
+    theme: string
+    language: string
+  }
+  createdAt: string
+}
+
 export interface User {
   walletAddress: string
   walletType: WalletType
@@ -46,13 +60,55 @@ export interface Vendor {
   rating?: number
 }
 
+/** Matches backend TransactionType enum (submit-transaction-request.dto.ts) */
+export type TransactionType = 'deposit' | 'withdraw' | 'loan_create' | 'loan_repay'
+
+/** Matches backend LiquidityDepositPreviewDto */
+export interface DepositPreview {
+  depositAmount: number
+  sharesReceived: number
+  currentSharePrice: number
+  newTotalValue: number
+  currentTotalLiquidity: number
+}
+
+/** Matches backend LiquidityWithdrawPreviewDto */
+export interface WithdrawPreview {
+  shares: number
+  ownedShares: number
+  remainingShares: number
+  currentSharePrice: number
+  expectedAmount: number
+  feeBps: number
+  fee: number
+  netAmount: number
+  availableLiquidity: number
+}
+
+/** Matches backend LiquidityDeposit/WithdrawResponseDto (the `data` field of the envelope) */
+export interface UnsignedTransaction<TPreview> {
+  unsignedXdr: string
+  description: string
+  preview: TPreview
+}
+
+/** Matches backend SubmitTransactionResponseDto (the `data` field of the envelope) */
+export interface SubmittedTransaction {
+  transactionHash: string
+  status: 'pending'
+}
+
 export interface PoolInfo {
   totalDeposits: number
+  totalLiquidity: number
+  lockedLiquidity: number
+  availableLiquidity: number
   totalShares: number
   sharePrice: number
-  availableLiquidity: number
-  lockedLiquidity: number
   apy: number
+  utilization: number
+  totalInvestors: number
+  activeLoans: number
 }
 
 export interface VendorDashboardOverview {

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_BASE_URL } from '../constants/config'
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { useUserStore } from '../stores/user.store'
 
 interface FailedRequest {
   resolve: (token: string) => void
@@ -28,10 +29,17 @@ export const api = axios.create({
   },
 })
 
+// useUserStore is the single source of truth for auth tokens. localStorage
+// is only a persistence layer, written exclusively through the store's
+// setTokens/clearTokens. Application code — including this interceptor —
+// must never read or write the token keys in localStorage directly, or the
+// in-memory store and localStorage can drift apart. That drift was the root
+// cause of the intermittent 401: a refresh rotated the token in localStorage
+// but left the store holding the now-invalid one.
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  const { accessToken } = useUserStore.getState()
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`
   }
   return config
 })
@@ -54,11 +62,17 @@ api.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
-      const refreshToken = localStorage.getItem('refreshToken')
+      const { accessToken: existingAccessToken, refreshToken } = useUserStore.getState()
       if (!refreshToken) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        window.location.href = '/'
+        isRefreshing = false
+        useUserStore.getState().clearTokens()
+        // Only force-redirect users who were never authenticated.
+        // If a token existed (e.g. expired session with no refresh
+        // token), let the caller surface the error instead of
+        // tearing the page down.
+        if (!existingAccessToken) {
+          window.location.href = '/'
+        }
         return Promise.reject(error)
       }
 
@@ -66,8 +80,10 @@ api.interceptors.response.use(
         const res = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken })
         const { accessToken, refreshToken: newRefreshToken } = res.data
 
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', newRefreshToken)
+        // Route the write through the store so the in-memory tokens and
+        // their localStorage copy stay in lockstep. The next refresh then
+        // reads the rotated token from the store, never a stale copy.
+        useUserStore.getState().setTokens(accessToken, newRefreshToken)
 
         processQueue(null, accessToken)
 
@@ -75,8 +91,7 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError, null)
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        useUserStore.getState().clearTokens()
         window.location.href = '/'
         return Promise.reject(refreshError)
       } finally {

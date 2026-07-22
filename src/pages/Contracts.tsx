@@ -121,9 +121,9 @@ function ContractCard({
 
 export function Contracts() {
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24">
-      <div className="mb-12 max-w-2xl">
-        <h1 className="font-display font-bold text-3xl md:text-4xl text-text-primary mb-4">
+    <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 md:py-12">
+      <div className="mb-8 max-w-2xl">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
           Deployed Contracts
         </h1>
         <p className="text-text-secondary text-lg">
@@ -133,14 +133,14 @@ export function Contracts() {
         </p>
       </div>
 
-      <section aria-label="Contract cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+      <section aria-label="Contract cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {contracts.map((contract) => (
           <ContractCard key={contract.key} contract={contract} />
         ))}
       </section>
 
       <section aria-label="Self-verification guide"
-        className="rounded-2xl p-8 border border-border"
+        className="rounded-xl p-6 border border-border"
         style={{ background: 'rgba(13,27,42,0.6)' }}
       >
         <div className="flex items-center gap-3 mb-6">

@@ -10,6 +10,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
+import { colors } from '../constants/colors'
 import type { LearnerProfile, ReputationHistoryPoint, Vouch, Loan } from '../types'
 
 const TIER_COLORS: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted'> = {
@@ -51,8 +52,8 @@ function ScoreChart({ data, isLoading }: { data?: ReputationHistoryPoint[]; isLo
       <svg viewBox={`0 0 ${data.length * 60} ${height}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#22C55E" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#22C55E" stopOpacity="0.3" />
+            <stop offset="0%" stopColor={colors.brand} stopOpacity="0.8" />
+            <stop offset="100%" stopColor={colors.brand} stopOpacity="0.3" />
           </linearGradient>
         </defs>
         {data.map((point, i) => {
@@ -64,14 +65,14 @@ function ScoreChart({ data, isLoading }: { data?: ReputationHistoryPoint[]; isLo
               <rect x={x} y={y} width={44} height={barH} fill="url(#barFill)" rx={3} />
               <text
                 x={x + 22} y={y - 6}
-                textAnchor="middle" fill="#A8BCCF"
+                textAnchor="middle" fill={colors.textSecondary}
                 fontSize="10" fontFamily="JetBrains Mono, monospace"
               >
                 {point.score}
               </text>
               <text
                 x={x + 22} y={height - 4}
-                textAnchor="middle" fill="#5A7A94"
+                textAnchor="middle" fill={colors.textFaint}
                 fontSize="9"
               >
                 {new Date(point.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -143,8 +144,8 @@ export function LearnerProfile() {
 
   if (!walletAddress) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">Invalid URL</h2>
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-display font-semibold text-xl text-text-primary mb-4">Invalid URL</h2>
         <p className="text-text-secondary">No wallet address provided.</p>
       </div>
     )
@@ -152,7 +153,7 @@ export function LearnerProfile() {
 
   if (profileQuery.isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
         <Spinner size={32} />
       </div>
     )
@@ -160,8 +161,8 @@ export function LearnerProfile() {
 
   if (profileQuery.isError) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h2 className="font-display font-bold text-3xl text-text-primary mb-4">Profile not found</h2>
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-display font-semibold text-xl text-text-primary mb-4">Profile not found</h2>
         <p className="text-text-secondary">Could not load profile for this wallet address.</p>
       </div>
     )
@@ -170,14 +171,14 @@ export function LearnerProfile() {
   const profile = profileQuery.data!
 
   const stats = [
-    { label: 'Total Loans', value: profile.totalLoans, icon: BarChart3, color: '#22C55E' },
-    { label: 'Active Loans', value: profile.activeLoans, icon: CreditCard, color: '#2563EB' },
-    { label: 'Total Borrowed', value: `$${profile.totalBorrowed.toLocaleString()}`, icon: DollarSign, color: '#F59E0B' },
-    { label: 'Total Repaid', value: `$${profile.totalRepaid.toLocaleString()}`, icon: CheckCircle, color: '#22C55E' },
+    { label: 'Total Loans', value: profile.totalLoans, icon: BarChart3, color: colors.brand },
+    { label: 'Active Loans', value: profile.activeLoans, icon: CreditCard, color: colors.brandBlue },
+    { label: 'Total Borrowed', value: `$${profile.totalBorrowed.toLocaleString()}`, icon: DollarSign, color: colors.amber },
+    { label: 'Total Repaid', value: `$${profile.totalRepaid.toLocaleString()}`, icon: CheckCircle, color: colors.brand },
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-3">
@@ -233,7 +234,7 @@ export function LearnerProfile() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 size={18} className="text-text-secondary" />

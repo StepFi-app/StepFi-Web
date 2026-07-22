@@ -8,7 +8,14 @@ import { useToast } from '../hooks/useToast'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 
-const CATEGORIES = ['Electronics', 'Bootcamp', 'OnlineCourse', 'DevTools', 'Books'] as const
+// Values map to the backend VendorType enum; labels are display-only.
+const CATEGORIES = [
+  { value: 'school', label: 'School' },
+  { value: 'bootcamp', label: 'Bootcamp' },
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'books', label: 'Books' },
+  { value: 'subscriptions', label: 'Subscriptions' },
+] as const
 
 interface FormData {
   name: string
@@ -87,8 +94,8 @@ export function VendorRegister() {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
           Authentication required
         </h1>
         <p className="text-text-secondary">Connect your wallet to register as a vendor.</p>
@@ -97,9 +104,9 @@ export function VendorRegister() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-2">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-2">
           Register as Vendor
         </h1>
         <p className="text-text-muted">
@@ -135,7 +142,7 @@ export function VendorRegister() {
             >
               <option value="">Select a category</option>
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>
             {errors.category && <p className="text-red-400 text-sm mt-1" role="alert">{errors.category}</p>}

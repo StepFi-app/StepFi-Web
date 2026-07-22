@@ -18,6 +18,7 @@ import { clsx } from 'clsx'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { CONTRACT_IDS, GRANTFOX_URL } from '../constants/config'
+import { colors } from '../constants/colors'
 
 const STELLAR_EXPERT_CONTRACT =
   'https://stellar.expert/explorer/testnet/contract'
@@ -26,9 +27,9 @@ const APP_DOWNLOAD_URL = 'https://expo.dev/accounts/stepfi-app'
 const GITHUB_ORG_URL = 'https://github.com/StepFi-app'
 
 const ACCENT = {
-  learner: '#2563EB',
-  sponsor: '#22C55E',
-  mentor: '#F59E0B',
+  learner: colors.brandBlue,
+  sponsor: colors.brand,
+  mentor: colors.amber,
 }
 
 const fadeUp: Variants = {
@@ -81,7 +82,7 @@ function SectionHeader({ title, subtitle, align = 'center' }: SectionHeaderProps
         align === 'center' && 'text-center max-w-2xl mx-auto'
       )}
     >
-      <h2 className="font-display font-bold text-3xl md:text-4xl text-text-primary mb-4">
+      <h2 className="font-display font-semibold text-2xl md:text-3xl text-text-primary mb-4">
         {title}
       </h2>
       <p className="text-text-secondary text-lg">{subtitle}</p>
@@ -280,7 +281,7 @@ function HeroSection() {
   return (
     <section className="relative flex items-center min-h-[calc(100vh-5rem)] overflow-hidden">
       <DotGrid />
-      <div className="relative max-w-7xl mx-auto px-6 md:px-12 w-full py-20 text-center">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-12 w-full py-16 text-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,7 +301,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.05 }}
-          className="font-display font-bold text-4xl sm:text-5xl md:text-[64px] md:leading-[1.05] text-text-primary mb-6"
+          className="font-display font-bold text-3xl sm:text-4xl text-text-primary mb-6"
         >
           The infrastructure behind
           <br />
@@ -437,7 +438,7 @@ function SponsorsSection() {
         title="Put your capital to work."
         subtitle="Fund the next generation of developers and earn yield while doing it."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
         <motion.div variants={fadeUp}>
           <ul className="space-y-4">
             {sponsorBenefits.map((benefit) => (
@@ -606,7 +607,7 @@ function MentorsSection() {
         title="Your reputation can open doors for others."
         subtitle="Vouch for learners you believe in. Help them access better loan terms."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={fadeUp}>
           <ol className="space-y-5">
             {mentorSteps.map((step, index) => (
@@ -724,39 +725,7 @@ function ContractsSection() {
 }
 
 function ContributeSection() {
-  return (
-    <Section>
-      <motion.div
-        variants={fadeUp}
-        className="rounded-2xl p-10 md:p-14 text-center"
-        style={{
-          background: 'rgba(13,27,42,0.6)',
-          border: '1px solid rgba(30,58,82,0.6)',
-        }}
-      >
-        <h2 className="font-display font-bold text-3xl md:text-4xl text-text-primary mb-4">
-          StepFi is open source.
-        </h2>
-        <p className="text-text-secondary max-w-xl mx-auto mb-8">
-          37 labeled issues across 3 repos. Good first issues, medium, and
-          hard. Earn Stellar rewards through Grantfox for every merged PR.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href={GRANTFOX_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" className="w-full sm:w-auto">
-              Contribute on Grantfox
-              <ExternalLink size={16} />
-            </Button>
-          </a>
-          <a href={GITHUB_ORG_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Browse Issues
-            </Button>
-          </a>
-        </div>
-      </motion.div>
-    </Section>
-  )
+  return null
 }
 
 function FooterLinksStrip() {
@@ -766,9 +735,9 @@ function FooterLinksStrip() {
       whileInView="visible"
       viewport={{ once: true, margin: '-80px' }}
       variants={stagger}
-      className="max-w-7xl mx-auto px-6 md:px-12 pb-12"
+      className="max-w-7xl mx-auto px-6 md:px-12 pb-8"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-12 border-t border-border">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-border">
         {footerColumns.map((column) => (
           <motion.div key={column.title} variants={fadeUp}>
             <h3 className="font-display font-semibold text-text-primary mb-4">

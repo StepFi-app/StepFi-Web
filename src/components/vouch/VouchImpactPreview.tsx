@@ -2,6 +2,7 @@ import { ArrowRight, Award, DollarSign, TrendingDown } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import type { VouchRequest } from '../../types'
+import { colors } from '../../constants/colors'
 
 const VOUCH_REPUTATION_BOOST = 12
 
@@ -28,21 +29,21 @@ export function VouchImpactPreview({
       before: request.score.toString(),
       after: boostedScore.toString(),
       icon: Award,
-      color: '#F59E0B',
+      color: colors.amber,
     },
     {
       label: 'Interest Rate',
       before: `${currentRate}%`,
       after: `${newRate}%`,
       icon: TrendingDown,
-      color: '#22C55E',
+      color: colors.brand,
     },
     {
       label: 'Monthly Payment (est.)',
       before: `$${Math.round(request.loanAmount * (currentRate / 100) / 12).toLocaleString()}`,
       after: `$${Math.round(request.loanAmount * (newRate / 100) / 12).toLocaleString()}`,
       icon: DollarSign,
-      color: '#2563EB',
+      color: colors.brandBlue,
     },
   ]
 

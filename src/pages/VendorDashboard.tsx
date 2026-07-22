@@ -10,6 +10,7 @@ import { vendorsService } from '../services/vendors.service'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
+import { colors } from '../constants/colors'
 import { Spinner } from '../components/ui/Spinner'
 import type {
   VendorDashboardOverview, VendorLoan, VendorPayment,
@@ -25,10 +26,10 @@ const STATUS_VARIANT: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted
 
 function OverviewCards({ overview, isLoading }: { overview?: VendorDashboardOverview; isLoading: boolean }) {
   const cards = [
-    { label: 'Total Loans', value: overview?.totalLoans ?? 0, icon: BarChart3, color: '#22C55E' },
-    { label: 'Active Loans', value: overview?.activeLoans ?? 0, icon: CreditCard, color: '#2563EB' },
-    { label: 'Total Disbursed', value: `$${overview?.totalDisbursed?.toLocaleString() ?? 0}`, icon: DollarSign, color: '#F59E0B' },
-    { label: 'Total Repaid', value: `$${overview?.totalRepaid?.toLocaleString() ?? 0}`, icon: Package, color: '#22C55E' },
+    { label: 'Total Loans', value: overview?.totalLoans ?? 0, icon: BarChart3, color: colors.brand },
+    { label: 'Active Loans', value: overview?.activeLoans ?? 0, icon: CreditCard, color: colors.brandBlue },
+    { label: 'Total Disbursed', value: `$${overview?.totalDisbursed?.toLocaleString() ?? 0}`, icon: DollarSign, color: colors.amber },
+    { label: 'Total Repaid', value: `$${overview?.totalRepaid?.toLocaleString() ?? 0}`, icon: Package, color: colors.brand },
   ]
 
   return (
@@ -461,8 +462,8 @@ export function VendorDashboard() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-24 text-center">
-        <h1 className="font-display font-bold text-3xl text-text-primary mb-4">
+      <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+        <h1 className="font-display font-semibold text-2xl text-text-primary mb-4">
           Connect your wallet to continue
         </h1>
         <p className="text-text-secondary mb-8">
@@ -475,11 +476,11 @@ export function VendorDashboard() {
   const totalPages = loansQuery.data?.totalPages ?? 1
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
           <p className="text-text-muted text-sm font-mono mb-1">Vendor Dashboard</p>
-          <h1 className="font-display font-bold text-3xl text-text-primary">
+          <h1 className="font-display font-semibold text-2xl text-text-primary">
             {address.slice(0, 8)}...{address.slice(-6)}
           </h1>
         </div>
@@ -503,7 +504,7 @@ export function VendorDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
         <PaymentHistory payments={paymentsQuery.data} isLoading={paymentsQuery.isLoading} />
         <ProductsSection products={productsQuery.data} isLoading={productsQuery.isLoading} />
       </div>

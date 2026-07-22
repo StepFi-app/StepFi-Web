@@ -198,10 +198,10 @@ export function Vouch() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display font-bold text-3xl text-text-primary mb-1">
+          <h1 className="font-display font-semibold text-2xl text-text-primary mb-1">
             Mentor Vouching
           </h1>
           <p className="text-text-muted">
