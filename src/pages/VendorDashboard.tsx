@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useWallet } from '../hooks/useWallet'
 import { vendorsService } from '../services/vendors.service'
+import { queryKeys, invalidateSubtree } from '../services/queryKeys'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -389,31 +390,31 @@ export function VendorDashboard() {
   const limit = 10
 
   const overviewQuery = useQuery<VendorDashboardOverview>({
-    queryKey: ['vendor-dashboard'],
+    queryKey: queryKeys.vendors.dashboard(),
     queryFn: () => vendorsService.getDashboard(),
     enabled: isConnected,
   })
 
   const loansQuery = useQuery<PaginatedResponse<VendorLoan>>({
-    queryKey: ['vendor-loans', page, sortField, sortOrder, limit],
+    queryKey: queryKeys.vendors.vendorLoans({ page, sortField, sortOrder, limit }),
     queryFn: () => vendorsService.getLoans(page, limit, sortField, sortOrder),
     enabled: isConnected,
   })
 
   const paymentsQuery = useQuery<VendorPayment[]>({
-    queryKey: ['vendor-payments'],
+    queryKey: queryKeys.vendors.payments(),
     queryFn: () => vendorsService.getPayments(),
     enabled: isConnected,
   })
 
   const productsQuery = useQuery<VendorProduct[]>({
-    queryKey: ['vendor-products'],
+    queryKey: queryKeys.vendors.products(),
     queryFn: () => vendorsService.getProducts(),
     enabled: isConnected,
   })
 
   const apiKeysQuery = useQuery<ApiKey[]>({
-    queryKey: ['vendor-api-keys'],
+    queryKey: queryKeys.vendors.apiKeys(),
     queryFn: () => vendorsService.getApiKeys(),
     enabled: isConnected,
   })
@@ -422,14 +423,14 @@ export function VendorDashboard() {
     mutationFn: (label: string) => vendorsService.createApiKey(label),
     onSuccess: (data) => {
       setGeneratedKey(data.key)
-      queryClient.invalidateQueries({ queryKey: ['vendor-api-keys'] })
+      invalidateSubtree.vendorApiKeys(queryClient)
     },
   })
 
   const revokeKeyMutation = useMutation({
     mutationFn: (id: string) => vendorsService.revokeApiKey(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-api-keys'] })
+      invalidateSubtree.vendorApiKeys(queryClient)
     },
   })
 

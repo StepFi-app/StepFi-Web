@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { sponsorsService } from '../services/sponsors.service'
 import { transactionsService } from '../services/transactions.service'
+import { queryKeys, invalidateSubtree } from '../services/queryKeys'
 import { useTransaction } from '../hooks/useTransaction'
 import { useWallet } from '../hooks/useWallet'
 import { useToast } from '../hooks/useToast'
@@ -37,8 +38,9 @@ export function Sponsors() {
     profit: number
   } | null>(null)
 
+  const queryClient = useQueryClient()
   const { data: poolInfo, isLoading: poolLoading } = useQuery<PoolInfo>({
-    queryKey: ['poolInfo'],
+    queryKey: queryKeys.pool.info(),
     queryFn: sponsorsService.getPoolInfo,
     enabled: isConnected,
   })
@@ -64,6 +66,7 @@ export function Sponsors() {
       )
       setSuccessData(result)
       setDepositAmount('')
+      invalidateSubtree.pool(queryClient)
       toast.success('Deposit submitted successfully.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Deposit failed.'
@@ -92,6 +95,7 @@ export function Sponsors() {
       )
       setSuccessData(result)
       setWithdrawShares('')
+      invalidateSubtree.pool(queryClient)
       toast.success('Withdrawal submitted successfully.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Withdrawal failed.'
