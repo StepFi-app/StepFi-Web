@@ -98,6 +98,15 @@ export interface SubmittedTransaction {
   status: 'pending'
 }
 
+/** Idempotency record stored in localStorage to prevent duplicate submissions */
+export interface IdempotencyRecord {
+  idempotencyKey: string
+  xdrHash: string
+  transactionHash: string
+  type: TransactionType
+  createdAt: string
+}
+
 export interface PoolInfo {
   totalDeposits: number
   totalLiquidity: number
