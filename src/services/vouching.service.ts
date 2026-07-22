@@ -84,7 +84,7 @@ export const vouchingService = {
   },
 
   // POST /vouching/approve — mentor approves a pending vouch request for a learner.
-  submitVouch: async (learnerAddress: string, _txHash?: string): Promise<VouchResponse> => {
+  submitVouch: async (learnerAddress: string, _?: string): Promise<VouchResponse> => {
     const res = await api.post<VouchResponse>('/vouching/approve', {
       learnerWallet: learnerAddress,
     })

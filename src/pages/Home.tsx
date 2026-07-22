@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
@@ -19,6 +19,8 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { CONTRACT_IDS, GRANTFOX_URL } from '../constants/config'
 import { colors } from '../constants/colors'
+import { sorobanService } from '../services/soroban.service'
+import { poolService } from '../services/pool.service'
 
 const STELLAR_EXPERT_CONTRACT =
   'https://stellar.expert/explorer/testnet/contract'
@@ -170,16 +172,6 @@ const sponsorBenefits = [
   'All transactions on Stellar blockchain',
 ]
 
-const poolStats = {
-  totalValue: '$48,320',
-  available: '$31,200',
-  availablePct: 64.6,
-  locked: '$17,120',
-  lockedPct: 35.4,
-  apy: '12.4%',
-  activeLoans: '17',
-  onTimeRate: '94.2%',
-}
 
 interface Benefit {
   icon: LucideIcon
@@ -432,6 +424,54 @@ function ParticipantsSection() {
 }
 
 function SponsorsSection() {
+  const [stats, setStats] = useState({
+    totalValue: '$48,320',
+    available: '$31,200',
+    availablePct: 64.6,
+    locked: '$17,120',
+    lockedPct: 35.4,
+    apy: '12.4%',
+    activeLoans: '17',
+    onTimeRate: '94.2%',
+  })
+
+  useEffect(() => {
+    let ignore = false
+    async function loadStats() {
+      try {
+        const [sorobanData, apiData] = await Promise.all([
+          sorobanService.getPoolStats().catch(() => null),
+          poolService.getPoolInfo().catch(() => null),
+        ])
+
+        if (ignore) return
+
+        const total = sorobanData?.totalLiquidity || apiData?.totalLiquidity || 48320
+        const available = sorobanData?.availableLiquidity || apiData?.availableLiquidity || 31200
+        const locked = sorobanData?.lockedLiquidity || apiData?.lockedLiquidity || 17120
+        const availPct = total > 0 ? Number(((available / total) * 100).toFixed(1)) : 64.6
+        const lockPct = total > 0 ? Number(((locked / total) * 100).toFixed(1)) : 35.4
+
+        setStats({
+          totalValue: `$${total.toLocaleString()}`,
+          available: `$${available.toLocaleString()}`,
+          availablePct: availPct,
+          locked: `$${locked.toLocaleString()}`,
+          lockedPct: lockPct,
+          apy: apiData ? `${apiData.apy}%` : '12.4%',
+          activeLoans: apiData ? String(apiData.activeLoans) : '17',
+          onTimeRate: '94.2%',
+        })
+      } catch {
+        // preserve fallback defaults
+      }
+    }
+    loadStats()
+    return () => {
+      ignore = true
+    }
+  }, [])
+
   return (
     <Section>
       <SectionHeader
@@ -471,14 +511,14 @@ function SponsorsSection() {
                 Pool Overview
               </h3>
               <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand border border-brand/20">
-                {poolStats.apy} APY
+                {stats.apy} APY
               </span>
             </div>
 
             <div className="mb-2">
               <span className="text-text-muted text-sm">Total Value</span>
               <div className="font-display font-bold text-3xl text-text-primary">
-                {poolStats.totalValue}
+                {stats.totalValue}
               </div>
             </div>
 
@@ -486,7 +526,7 @@ function SponsorsSection() {
               <div
                 className="h-full rounded-full"
                 style={{
-                  width: `${poolStats.availablePct}%`,
+                  width: `${stats.availablePct}%`,
                   background: ACCENT.sponsor,
                 }}
               />
@@ -499,9 +539,9 @@ function SponsorsSection() {
                   Available
                 </div>
                 <div className="text-text-primary font-medium mt-1">
-                  {poolStats.available}{' '}
+                  {stats.available}{' '}
                   <span className="text-text-muted">
-                    ({poolStats.availablePct}%)
+                    ({stats.availablePct}%)
                   </span>
                 </div>
               </div>
@@ -511,9 +551,9 @@ function SponsorsSection() {
                   Locked in loans
                 </div>
                 <div className="text-text-primary font-medium mt-1">
-                  {poolStats.locked}{' '}
+                  {stats.locked}{' '}
                   <span className="text-text-muted">
-                    ({poolStats.lockedPct}%)
+                    ({stats.lockedPct}%)
                   </span>
                 </div>
               </div>
@@ -523,13 +563,13 @@ function SponsorsSection() {
               <div>
                 <div className="text-text-muted">Active loans</div>
                 <div className="text-text-primary font-medium mt-1">
-                  {poolStats.activeLoans}
+                  {stats.activeLoans}
                 </div>
               </div>
               <div>
                 <div className="text-text-muted">On-time rate</div>
                 <div className="text-text-primary font-medium mt-1">
-                  {poolStats.onTimeRate}
+                  {stats.onTimeRate}
                 </div>
               </div>
             </div>
