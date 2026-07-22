@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Spinner } from '../components/ui/Spinner'
 import { poolService } from '../services/pool.service'
+import { queryKeys } from '../services/queryKeys'
 import { useAppStore } from '../stores/app.store'
 import { useWallet } from '../hooks/useWallet'
 import { GRANTFOX_URL } from '../constants/config'
@@ -164,7 +165,7 @@ function formatCurrency(value: number): string {
 function StepPoolHealth({ onNext }: { onNext: () => void }) {
   const [depositAmount, setDepositAmount] = useState('')
   const { data: pool, isLoading } = useQuery({
-    queryKey: ['pool-info'],
+    queryKey: queryKeys.pool.info(),
     queryFn: () => poolService.getPoolInfo(),
     refetchInterval: 30_000,
   })

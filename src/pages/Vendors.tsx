@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Search, MapPin, Star, Store } from 'lucide-react'
 import { vendorsService } from '../services/vendors.service'
+import { queryKeys } from '../services/queryKeys'
 import { Card } from '../components/ui/Card'
 import { Spinner } from '../components/ui/Spinner'
 import { Badge } from '../components/ui/Badge'
@@ -18,7 +19,7 @@ export function Vendors() {
   const limit = 12
 
   const { data, isLoading, error } = useQuery<PaginatedResponse<Vendor>>({
-    queryKey: ['vendors', page, limit, search, category],
+    queryKey: queryKeys.vendors.list({ page, limit, search, category }),
     queryFn: () => vendorsService.listVendors(
       page,
       limit,

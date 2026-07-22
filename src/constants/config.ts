@@ -3,6 +3,10 @@ export const API_BASE_URL =
 
 export const STELLAR_NETWORK = 'TESTNET'
 
+export const SOROBAN_RPC_URL =
+  import.meta.env?.VITE_SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org'
+
+
 export const CONTRACT_IDS = {
   creditline:
     'CAQDHYG3TALPNXG466SZUMJEPOI7VYV732LPFF3GHE4ASPBCNMIQBS3X',

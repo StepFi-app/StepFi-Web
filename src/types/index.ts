@@ -240,3 +240,44 @@ export interface VouchResponse {
   createdAt: string
   txHash: string
 }
+
+export interface SorobanPoolStats {
+  totalLiquidity: number
+  availableLiquidity: number
+  lockedLiquidity: number
+  totalShares: number
+  sharePrice: number
+}
+
+export interface SorobanReputationScore {
+  address: string
+  score: number
+}
+
+export interface SorobanLoanStatus {
+  id: string
+  borrower: string
+  amount: number
+  paidInstallments: number
+  status: string
+}
+
+export interface ContractWasmInfo {
+  key: string
+  name: string
+  contractId: string
+  wasmHash: string | null
+  status: 'loading' | 'success' | 'error'
+  error?: string
+}
+
+export interface VerificationReconciliation {
+  totalLiquidityMatch: boolean
+  availableLiquidityMatch: boolean
+  lockedLiquidityMatch: boolean
+  sharePriceMatch: boolean
+  hasAnyMismatch: boolean
+  apiStats: PoolInfo | null
+  sorobanStats: SorobanPoolStats | null
+}
+
