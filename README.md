@@ -133,7 +133,11 @@ npm install
 npm run dev
 ```
 
-The app runs against the live testnet API by default.
+The app runs against the live testnet API by default. To use a different backend, set `VITE_API_BASE_URL`:
+
+```bash
+VITE_API_BASE_URL=http://localhost:3000/api/v1 npm run dev
+```
 
 No local backend setup is required to start contributing to the frontend.
 
