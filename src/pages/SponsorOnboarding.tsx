@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Variants } from 'framer-motion'
-import { useQuery } from '@tanstack/react-query'
-import { Wallet, BarChart3, ArrowRight, Check, AlertTriangle, ExternalLink } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Wallet, BarChart3, ArrowRight, Check, AlertTriangle, ExternalLink, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Spinner } from '../components/ui/Spinner'
 import { poolService } from '../services/pool.service'
-import { queryKeys } from '../services/queryKeys'
+import { sponsorsService } from '../services/sponsors.service'
+import { transactionsService } from '../services/transactions.service'
+import { queryKeys, invalidateSubtree } from '../services/queryKeys'
 import { useAppStore } from '../stores/app.store'
 import { useWallet } from '../hooks/useWallet'
+import { useTransaction } from '../hooks/useTransaction'
+import { useToast } from '../hooks/useToast'
 import { GRANTFOX_URL } from '../constants/config'
 
 const steps = [
@@ -266,52 +270,194 @@ function StepPoolHealth({ onNext }: { onNext: () => void }) {
 }
 
 function StepDeposit({ onComplete }: { onComplete: () => void }) {
-  const { isConnected, connectFreighter } = useWallet()
+  const { isConnected, connectFreighter, isConnecting } = useWallet()
+  const { toast } = useToast()
+  const { execute, isLoading: txLoading, error: txError } = useTransaction()
+  const [amount, setAmount] = useState('')
+  const [successData, setSuccessData] = useState<{ hash: string; amount: number } | null>(null)
+  const queryClient = useQueryClient()
 
-  return (
-    <motion.div key="deposit" variants={fadeSlide} initial="initial" animate="animate" exit="exit" className="text-center max-w-lg mx-auto">
-      <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/30 flex items-center justify-center mx-auto mb-6">
-        <ArrowRight size={32} className="text-brand" />
-      </div>
-      <h2 className="font-display font-bold text-2xl text-text-primary mb-4">
-        Make Your First Deposit
-      </h2>
-      <p className="text-text-secondary leading-relaxed mb-8">
-        Connect your Stellar wallet and deposit USDC to start earning yield
-        while funding real learner dreams. You can deposit any amount and
-        withdraw anytime.
-      </p>
+  const amountNum = Number(amount)
+  const isValid = amountNum >= 10
+  const showValidationError = amount !== '' && !isValid
 
-      {!isConnected ? (
-        <Button onClick={connectFreighter} size="lg" className="w-full">
-          Connect Freighter Wallet
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-text-secondary">
-            Your wallet is connected. Head to the sponsor dashboard to make
-            your first deposit.
+  const handleDeposit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!isValid) return
+
+    try {
+      const result = await execute(
+        () => sponsorsService.deposit(amountNum),
+        async (signedXdr, transaction) => {
+          const submitted = await transactionsService.submit(signedXdr, 'deposit')
+          return {
+            hash: submitted.transactionHash,
+            amount: transaction.preview.depositAmount,
+          }
+        },
+      )
+      setSuccessData(result)
+      setAmount('')
+      invalidateSubtree.pool(queryClient)
+      toast.success('Deposit submitted successfully.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Deposit failed.'
+      toast.error(message)
+    }
+  }
+
+  if (successData) {
+    return (
+      <motion.div key="deposit-success" variants={fadeSlide} initial="initial" animate="animate" exit="exit" className="max-w-lg mx-auto">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/30 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={32} className="text-brand" />
+          </div>
+          <h2 className="font-display font-bold text-2xl text-text-primary mb-2">
+            Deposit Complete
+          </h2>
+          <p className="text-text-secondary text-sm">
+            Your first deposit has been submitted to the network.
           </p>
-          <Button onClick={onComplete} size="lg" className="w-full">
-            Go to Sponsor Dashboard <ExternalLink size={16} />
-          </Button>
         </div>
-      )}
 
-      <div className="mt-8 pt-6 border-t border-border">
-        <p className="text-xs text-text-muted leading-relaxed">
-          No wallet yet? You can also contribute via
-          {' '}
+        <Card className="bg-brand/5 border-brand/30 mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-brand rounded-full text-bg">
+              <CheckCircle2 size={20} />
+            </div>
+            <h4 className="font-bold text-text-primary">Transaction Successful</h4>
+          </div>
+
+          <div className="space-y-3 mb-6">
+            <div className="flex justify-between text-sm">
+              <span className="text-text-secondary">Amount:</span>
+              <span className="text-text-primary font-bold">{successData.amount.toLocaleString()} USDC</span>
+            </div>
+          </div>
+
           <a
-            href={GRANTFOX_URL}
+            href={`https://stellar.expert/explorer/testnet/tx/${successData.hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand hover:underline"
+            className="flex items-center justify-center gap-2 w-full py-2 text-sm
+              text-text-secondary hover:text-brand transition-colors border border-border rounded-xl"
           >
-            GrantFox
-          </a>.
+            View on Stellar.expert
+            <ExternalLink size={14} />
+          </a>
+        </Card>
+
+        <Button onClick={onComplete} size="lg" className="w-full">
+          Go to Sponsor Dashboard <ArrowRight size={16} />
+        </Button>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div key="deposit" variants={fadeSlide} initial="initial" animate="animate" exit="exit" className="max-w-lg mx-auto">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/30 flex items-center justify-center mx-auto mb-6">
+          <ArrowRight size={32} className="text-brand" />
+        </div>
+        <h2 className="font-display font-bold text-2xl text-text-primary mb-2">
+          Make Your First Deposit
+        </h2>
+        <p className="text-text-secondary text-sm leading-relaxed">
+          Connect your Stellar wallet and deposit USDC to start earning yield
+          while funding real learner dreams. Minimum deposit is $10.
         </p>
       </div>
+
+      {!isConnected ? (
+        <div className="space-y-6">
+          <Button
+            onClick={connectFreighter}
+            size="lg"
+            className="w-full"
+            loading={isConnecting}
+          >
+            Connect Freighter Wallet
+          </Button>
+
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs text-text-muted leading-relaxed text-center">
+              No wallet yet? Download
+              {' '}
+              <a
+                href="https://freighter.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand hover:underline"
+              >
+                Freighter
+              </a>
+              {' '}or contribute via{' '}
+              <a
+                href={GRANTFOX_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand hover:underline"
+              >
+                GrantFox
+              </a>.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleDeposit} className="space-y-4" aria-label="Deposit funds form">
+          <div>
+            <label htmlFor="onboarding-deposit-amount" className="block text-sm text-text-secondary mb-2">
+              Amount (USDC)
+            </label>
+            <div className="relative">
+              <input
+                id="onboarding-deposit-amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                min="10"
+                className={`w-full bg-bg border rounded-xl px-4 py-3
+                  text-text-primary focus:outline-none focus:border-brand transition-colors
+                  ${showValidationError ? 'border-red-500' : 'border-border'}`}
+                aria-describedby="onboarding-deposit-hint onboarding-deposit-error"
+                aria-invalid={showValidationError}
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted text-sm" aria-hidden="true">
+                USDC
+              </div>
+            </div>
+            <p id="onboarding-deposit-hint" className="text-text-muted text-xs mt-1">
+              Minimum deposit amount is $10 USDC.
+            </p>
+            {showValidationError && (
+              <p id="onboarding-deposit-error" className="text-red-500 text-xs mt-1" role="alert">
+                Minimum deposit is $10 USDC.
+              </p>
+            )}
+          </div>
+
+          {txError && (
+            <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20 flex gap-3">
+              <AlertCircle className="text-red-500 shrink-0" size={20} />
+              <p className="text-sm text-red-500">{txError}</p>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            loading={txLoading}
+            disabled={!isValid}
+          >
+            Deposit USDC
+            <ArrowRight size={18} />
+          </Button>
+        </form>
+      )}
     </motion.div>
   )
 }
