@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw, Clock, DollarSign, Percent, Ban, ExternalLink, XCircle } from 'lucide-react'
-import { signTransaction, isConnected, requestAccess } from '@stellar/freighter-api'
 import { vouchingService } from '../services/vouching.service'
 import { queryKeys } from '../services/queryKeys'
 import { useSubmitVouch, useRevokeVouch } from '../hooks/useOptimisticVouch'
@@ -14,7 +13,7 @@ import { VouchRequestCard } from '../components/vouch/VouchRequestCard'
 import { VouchImpactPreview } from '../components/vouch/VouchImpactPreview'
 import { useWallet } from '../hooks/useWallet'
 import { useToast } from '../hooks/useToast'
-import { STELLAR_NETWORK } from '../constants/config'
+import { useTransaction } from '../hooks/useTransaction'
 import type { VouchRequest } from '../types'
 
 const REPAYMENT_VARIANTS: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted'> = {
@@ -99,7 +98,7 @@ export function Vouch() {
   const [activeTab, setActiveTab] = useState<'requests' | 'active'>('requests')
   const [previewRequest, setPreviewRequest] = useState<VouchRequest | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<string | null>(null)
-  const [decliningId, setDecliningId] = useState<string | null>(null)
+  const { execute, isLoading: transactionPending } = useTransaction()
 
   const requestsQuery = useQuery({
     queryKey: queryKeys.vouches.requests(),
@@ -111,6 +110,30 @@ export function Vouch() {
     queryFn: vouchingService.getMyVouches,
   })
 
+  const declineMutation = useMutation({
+    mutationFn: vouchingService.declineVouch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vouch-requests'] })
+      toast.success('Vouch request declined.')
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Failed to decline vouch.'
+      toast.error(message)
+    },
+  })
+
+  const revokeMutation = useMutation({
+    mutationFn: (id: string) => vouchingService.revokeVouch(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
+      setRevokeTarget(null)
+      toast.success('Vouch revoked successfully.')
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Failed to revoke vouch.'
+      toast.error(message)
+    },
+  })
   const submitMutation = useSubmitVouch()
   const revokeMutation = useRevokeVouch()
 
@@ -122,6 +145,15 @@ export function Vouch() {
         await connectFreighter()
       }
 
+      const result = await execute(
+        () => vouchingService.buildVouch(previewRequest.learnerAddress),
+        'vouch',
+      )
+      if (!result.ok) throw new Error(result.message)
+      await queryClient.invalidateQueries({ queryKey: ['vouch-requests'] })
+      await queryClient.invalidateQueries({ queryKey: ['my-vouches'] })
+      setPreviewRequest(null)
+      toast.success('Vouch confirmed successfully.')
       const connection = await isConnected()
       if (!connection.isConnected) {
         throw new Error('Freighter not installed. Download at freighter.app')
@@ -164,11 +196,7 @@ export function Vouch() {
     }
   }
 
-  const handleDecline = async (id: string) => {
-    setDecliningId(id)
-    await new Promise((r) => setTimeout(r, 600))
-    setDecliningId(null)
-  }
+  const handleDecline = async (id: string) => declineMutation.mutate(id)
 
   const tabs = [
     {
@@ -286,7 +314,7 @@ export function Vouch() {
                   }
                   onVouch={setPreviewRequest}
                   onDecline={handleDecline}
-                  declining={decliningId === request.id}
+                  declining={declineMutation.isPending && declineMutation.variables === request.id}
                 />
               ))}
             </div>
@@ -438,7 +466,7 @@ export function Vouch() {
           request={previewRequest}
           onConfirm={handleVouchConfirm}
           onClose={() => setPreviewRequest(null)}
-          confirming={submitMutation.isPending}
+          confirming={transactionPending}
         />
       )}
 

@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { SubmittedTransaction, TransactionType } from '../types'
+import type { SubmittedTransaction, TransactionStatusResponse, TransactionType } from '../types'
 
 export const transactionsService = {
   /**
@@ -17,6 +17,11 @@ export const transactionsService = {
       xdr: signedXdr,
       type,
     })
+    return res.data.data
+  },
+
+  getStatus: async (transactionHash: string): Promise<TransactionStatusResponse> => {
+    const res = await api.get(`/transactions/${encodeURIComponent(transactionHash)}/status`)
     return res.data.data
   },
 }

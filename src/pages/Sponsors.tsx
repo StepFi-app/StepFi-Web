@@ -53,18 +53,9 @@ export function Sponsors() {
     if (!amount || amount <= 0) return
 
     try {
-      const result = await execute(
-        () => sponsorsService.deposit(amount),
-        async (signedXdr, transaction) => {
-          const submitted = await transactionsService.submit(signedXdr, 'deposit')
-          return {
-            hash: submitted.transactionHash,
-            amount: transaction.preview.depositAmount,
-            profit: 0,
-          }
-        },
-      )
-      setSuccessData(result)
+      const result = await execute(() => sponsorsService.deposit(amount), 'deposit')
+      if (!result.ok) throw new Error(result.message)
+      setSuccessData({ hash: result.transactionHash, amount: result.preview.depositAmount, profit: 0 })
       setDepositAmount('')
       invalidateSubtree.pool(queryClient)
       toast.success('Deposit submitted successfully.')
@@ -80,20 +71,9 @@ export function Sponsors() {
     if (!shares || shares <= 0) return
 
     try {
-      const result = await execute(
-        () => sponsorsService.withdraw(shares),
-        async (signedXdr, transaction) => {
-          const submitted = await transactionsService.submit(signedXdr, 'withdraw')
-          return {
-            hash: submitted.transactionHash,
-            amount: transaction.preview.netAmount,
-            // The backend does not report realized profit on withdrawal;
-            // the success card hides the profit row when it is 0.
-            profit: 0,
-          }
-        },
-      )
-      setSuccessData(result)
+      const result = await execute(() => sponsorsService.withdraw(shares), 'withdraw')
+      if (!result.ok) throw new Error(result.message)
+      setSuccessData({ hash: result.transactionHash, amount: result.preview.netAmount, profit: 0 })
       setWithdrawShares('')
       invalidateSubtree.pool(queryClient)
       toast.success('Withdrawal submitted successfully.')

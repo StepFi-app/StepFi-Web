@@ -1,4 +1,4 @@
-export type WalletType = 'freighter' | 'lobstr' | null
+export type WalletType = 'freighter' | 'albedo' | 'stellar-wallets-kit' | 'lobstr' | null
 
 /** Matches backend UserProfileDto (GET /users/me `data` payload) */
 export interface UserProfile {
@@ -61,7 +61,7 @@ export interface Vendor {
 }
 
 /** Matches backend TransactionType enum (submit-transaction-request.dto.ts) */
-export type TransactionType = 'deposit' | 'withdraw' | 'loan_create' | 'loan_repay'
+export type TransactionType = 'deposit' | 'withdraw' | 'loan_create' | 'loan_repay' | 'vouch'
 
 /** Matches backend LiquidityDepositPreviewDto */
 export interface DepositPreview {
@@ -96,6 +96,14 @@ export interface UnsignedTransaction<TPreview> {
 export interface SubmittedTransaction {
   transactionHash: string
   status: 'pending'
+}
+
+export type TransactionStatus = 'pending' | 'confirmed' | 'failed' | 'expired'
+
+export interface TransactionStatusResponse {
+  transactionHash: string
+  status: TransactionStatus
+  error?: string
 }
 
 export interface PoolInfo {
