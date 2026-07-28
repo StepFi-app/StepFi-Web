@@ -5,7 +5,7 @@ import { ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw, Clock, Doll
 import { signTransaction, isConnected, requestAccess } from '@stellar/freighter-api'
 import { vouchingService } from '../services/vouching.service'
 import { queryKeys } from '../services/queryKeys'
-import { useSubmitVouch, useRevokeVouch } from '../hooks/useOptimisticVouch'
+import { useSubmitVouch, useRevokeVouch, useDeclineVouch } from '../hooks/useOptimisticVouch'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -113,6 +113,7 @@ export function Vouch() {
 
   const submitMutation = useSubmitVouch()
   const revokeMutation = useRevokeVouch()
+  const declineMutation = useDeclineVouch()
 
   const handleVouchConfirm = async () => {
     if (!previewRequest) return
@@ -164,10 +165,17 @@ export function Vouch() {
     }
   }
 
-  const handleDecline = async (id: string) => {
+  const handleDecline = (id: string) => {
     setDecliningId(id)
-    await new Promise((r) => setTimeout(r, 600))
-    setDecliningId(null)
+    declineMutation.mutate(id, {
+      onError: (error) => {
+        const message = error instanceof Error ? error.message : 'Failed to decline request.'
+        toast.error(message)
+      },
+      onSettled: () => {
+        setDecliningId(null)
+      },
+    })
   }
 
   const tabs = [

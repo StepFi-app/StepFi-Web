@@ -49,6 +49,38 @@ export function useSubmitVouch() {
   })
 }
 
+export function useDeclineVouch() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (learnerAddress: string) => vouchingService.declineVouch(learnerAddress),
+    onMutate: async (learnerAddress: string) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.vouches.requests() })
+
+      const previousRequests = queryClient.getQueryData<VouchRequest[]>(
+        queryKeys.vouches.requests()
+      )
+
+      if (previousRequests) {
+        queryClient.setQueryData<VouchRequest[]>(
+          queryKeys.vouches.requests(),
+          previousRequests.filter((req) => req.learnerAddress !== learnerAddress)
+        )
+      }
+
+      return { previousRequests }
+    },
+    onError: (_err, _learnerAddress, context) => {
+      if (context?.previousRequests) {
+        queryClient.setQueryData(queryKeys.vouches.requests(), context.previousRequests)
+      }
+    },
+    onSettled: () => {
+      invalidateSubtree.vouches(queryClient)
+    },
+  })
+}
+
 export function useRevokeVouch() {
   const queryClient = useQueryClient()
 

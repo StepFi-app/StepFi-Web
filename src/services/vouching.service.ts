@@ -95,4 +95,12 @@ export const vouchingService = {
   revokeVouch: async (id: string): Promise<void> => {
     await api.delete(`/vouching/${id}`)
   },
+
+  // POST /vouching/decline — mentor declines a pending vouch request for a learner.
+  declineVouch: async (learnerAddress: string): Promise<VouchResponse> => {
+    const res = await api.post<VouchResponse>('/vouching/decline', {
+      learnerWallet: learnerAddress,
+    })
+    return res.data
+  },
 }
