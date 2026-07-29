@@ -23,7 +23,7 @@ export function Dashboard() {
   }
 
   if (role === 'mentor') {
-    return <Navigate to="/vouch" replace />
+    return <Navigate to="/mentor" replace />
   }
 
   return <Navigate to="/role-select" replace />
