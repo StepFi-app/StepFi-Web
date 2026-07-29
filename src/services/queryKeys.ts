@@ -17,6 +17,7 @@ export const queryKeys = {
     all: ['pool'] as const,
     info: () => [...queryKeys.pool.all, 'info'] as const,
     stats: () => [...queryKeys.pool.all, 'stats'] as const,
+    mySummary: () => [...queryKeys.pool.all, 'mySummary'] as const,
   },
   loans: {
     all: ['loans'] as const,
