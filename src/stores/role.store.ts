@@ -6,7 +6,7 @@ export type UserRole = 'sponsor' | 'vendor' | 'mentor' | null
 export const ROLE_ROUTES: Record<Exclude<UserRole, null>, string> = {
   sponsor: '/sponsors',
   vendor: '/vendors/dashboard',
-  mentor: '/vouch',
+  mentor: '/mentor',
 }
 
 interface RoleStore {
