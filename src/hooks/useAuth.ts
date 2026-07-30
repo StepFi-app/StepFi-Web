@@ -11,6 +11,17 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary)
 }
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const exp = payload.exp
+    if (!exp) return false
+    return Date.now() >= exp * 1000
+  } catch {
+    return true
+  }
+}
+
 export const useAuth = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -49,9 +60,22 @@ export const useAuth = () => {
     clearTokens()
   }
 
+  const checkAuth = () => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      return false
+    }
+    if (isTokenExpired(token)) {
+      clearTokens()
+      return false
+    }
+    return true
+  }
+
   return {
     authenticate,
     logout,
+    checkAuth,
     isAuthLoading,
     authError,
     isAuthenticated,
