@@ -5,7 +5,6 @@ import {
   Clock, DollarSign, Percent, Ban, ExternalLink, XCircle,
   UserCheck, TrendingUp, Wallet,
 } from 'lucide-react'
-import { signTransaction, isConnected, requestAccess } from '@stellar/freighter-api'
 import { useSubmitVouch, useRevokeVouch } from '../hooks/useOptimisticVouch'
 import { useMentor } from '../hooks/useMentor'
 import { Card } from '../components/ui/Card'
@@ -16,7 +15,6 @@ import { VouchRequestCard } from '../components/vouch/VouchRequestCard'
 import { VouchImpactPreview } from '../components/vouch/VouchImpactPreview'
 import { useWallet } from '../hooks/useWallet'
 import { useToast } from '../hooks/useToast'
-import { STELLAR_NETWORK } from '../constants/config'
 import type { VouchRequest } from '../types'
 
 const REPAYMENT_VARIANTS: Record<string, 'green' | 'blue' | 'amber' | 'red' | 'muted'> = {
@@ -209,35 +207,19 @@ export function MentorDashboard() {
     if (!previewRequest) return
 
     try {
+      // A mentor must be connected + authenticated (wallet-based JWT) to approve.
       if (!walletConnected) {
         await connectFreighter()
       }
 
-      const connection = await isConnected()
-      if (!connection.isConnected) {
-        throw new Error('Freighter not installed. Download at freighter.app')
-      }
-
-      const access = await requestAccess()
-      if (access.error) {
-        throw new Error(access.error.message)
-      }
-
-      const txXdr = `AAAAAgAAAABz...${Math.random().toString(36).slice(2)}`
-      const result = await signTransaction(txXdr, {
-        networkPassphrase:
-          STELLAR_NETWORK === 'TESTNET'
-            ? 'Test SDF Network ; September 2015'
-            : 'Public Global Stellar Network ; September 2015',
-      })
-
-      const txHash = 'signedTxXdr' in result ? (result as { signedTxXdr: string }).signedTxXdr : ''
-
+      // Approving a vouch is an authenticated backend operation: POST
+      // /vouching/approve transitions the vouch record from PENDING to APPROVED
+      // using the mentor's JWT identity. It is intentionally off-chain today, so
+      // there is no transaction for the mentor to sign here. If on-chain vouching
+      // is wired up later, route it through useTransaction + a backend-built XDR
+      // the way deposits do — never a client-fabricated one.
       submitMutation.mutate(
-        {
-          learnerAddress: previewRequest.learnerAddress,
-          txHash,
-        },
+        { learnerAddress: previewRequest.learnerAddress },
         {
           onSuccess: () => {
             setPreviewRequest(null)
@@ -250,7 +232,7 @@ export function MentorDashboard() {
         }
       )
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Transaction failed'
+      const message = err instanceof Error ? err.message : 'Failed to submit vouch.'
       toast.error(message)
     }
   }

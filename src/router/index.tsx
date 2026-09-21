@@ -1,25 +1,32 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import type { ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
-import { Home } from '../pages/Home'
-import { Docs } from '../pages/Docs'
-import { Contracts } from '../pages/Contracts'
-import { Dashboard } from '../pages/Dashboard'
-import { Vendors } from '../pages/Vendors'
-import { VendorDetail } from '../pages/VendorDetail'
-import { VendorRegister } from '../pages/VendorRegister'
-import { VendorDashboard } from '../pages/VendorDashboard'
-import { Sponsors } from '../pages/Sponsors'
-import { SponsorOnboarding } from '../pages/SponsorOnboarding'
-import { Vouch } from '../pages/Vouch'
-import { MentorDashboard } from '../pages/MentorDashboard'
-import { LearnerProfile } from '../pages/LearnerProfile'
-import { NotFound } from '../pages/NotFound'
-import { History } from '../pages/History'
-import { RoleSelect } from '../pages/RoleSelect'
+import { Spinner } from '../components/ui/Spinner'
 import { useRoleStore } from '../stores/role.store'
 import type { UserRole } from '../stores/role.store'
 import { useWallet } from '../hooks/useWallet'
-import type { ReactNode } from 'react'
+
+// Route pages are code-split so heavy per-page dependencies (e.g. the Stellar
+// SDK pulled in by the dashboard/vouch flows) load on demand instead of
+// inflating the initial bundle. Pages use named exports, so each is mapped to a
+// default export for React.lazy.
+const Home = lazy(() => import('../pages/Home').then((m) => ({ default: m.Home })))
+const Docs = lazy(() => import('../pages/Docs').then((m) => ({ default: m.Docs })))
+const Contracts = lazy(() => import('../pages/Contracts').then((m) => ({ default: m.Contracts })))
+const Dashboard = lazy(() => import('../pages/Dashboard').then((m) => ({ default: m.Dashboard })))
+const Vendors = lazy(() => import('../pages/Vendors').then((m) => ({ default: m.Vendors })))
+const VendorDetail = lazy(() => import('../pages/VendorDetail').then((m) => ({ default: m.VendorDetail })))
+const VendorRegister = lazy(() => import('../pages/VendorRegister').then((m) => ({ default: m.VendorRegister })))
+const VendorDashboard = lazy(() => import('../pages/VendorDashboard').then((m) => ({ default: m.VendorDashboard })))
+const Sponsors = lazy(() => import('../pages/Sponsors').then((m) => ({ default: m.Sponsors })))
+const SponsorOnboarding = lazy(() => import('../pages/SponsorOnboarding').then((m) => ({ default: m.SponsorOnboarding })))
+const Vouch = lazy(() => import('../pages/Vouch').then((m) => ({ default: m.Vouch })))
+const MentorDashboard = lazy(() => import('../pages/MentorDashboard').then((m) => ({ default: m.MentorDashboard })))
+const LearnerProfile = lazy(() => import('../pages/LearnerProfile').then((m) => ({ default: m.LearnerProfile })))
+const NotFound = lazy(() => import('../pages/NotFound').then((m) => ({ default: m.NotFound })))
+const History = lazy(() => import('../pages/History').then((m) => ({ default: m.History })))
+const RoleSelect = lazy(() => import('../pages/RoleSelect').then((m) => ({ default: m.RoleSelect })))
 
 function RoleGuard({
   allowedRole,
@@ -43,70 +50,88 @@ function RoleGuard({
   return <>{children}</>
 }
 
+// Layout (Navbar + Footer) renders immediately; only the lazily-loaded page
+// content suspends, so the navigation chrome never flashes on route changes.
+function page(node: ReactNode) {
+  return (
+    <Layout>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-32">
+            <Spinner size={28} />
+          </div>
+        }
+      >
+        {node}
+      </Suspense>
+    </Layout>
+  )
+}
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout><Home /></Layout>,
+    element: page(<Home />),
   },
   {
     path: '/docs',
-    element: <Layout><Docs /></Layout>,
+    element: page(<Docs />),
   },
   {
     path: '/contracts',
-    element: <Layout><Contracts /></Layout>,
+    element: page(<Contracts />),
   },
   {
     path: '/role-select',
-    element: <Layout><RoleSelect /></Layout>,
+    element: page(<RoleSelect />),
   },
   {
     path: '/dashboard',
-    element: <Layout><Dashboard /></Layout>,
+    element: page(<Dashboard />),
   },
   {
     path: '/vendors',
-    element: <Layout><Vendors /></Layout>,
+    element: page(<Vendors />),
   },
   {
     path: '/vendors/dashboard',
-    element: <Layout><RoleGuard allowedRole="vendor"><VendorDashboard /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="vendor"><VendorDashboard /></RoleGuard>),
   },
   {
     path: '/vendors/register',
-    element: <Layout><RoleGuard allowedRole="vendor"><VendorRegister /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="vendor"><VendorRegister /></RoleGuard>),
   },
   {
     path: '/vendors/:id',
-    element: <Layout><VendorDetail /></Layout>,
+    element: page(<VendorDetail />),
   },
   {
     path: '/sponsors',
-    element: <Layout><RoleGuard allowedRole="sponsor"><Sponsors /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="sponsor"><Sponsors /></RoleGuard>),
   },
   {
     path: '/sponsors/onboarding',
-    element: <Layout><RoleGuard allowedRole="sponsor"><SponsorOnboarding /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="sponsor"><SponsorOnboarding /></RoleGuard>),
   },
   {
     path: '/mentor',
-    element: <Layout><RoleGuard allowedRole="mentor"><MentorDashboard /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="mentor"><MentorDashboard /></RoleGuard>),
   },
   {
     path: '/vouch',
-    element: <Layout><RoleGuard allowedRole="mentor"><Vouch /></RoleGuard></Layout>,
+    element: page(<RoleGuard allowedRole="mentor"><Vouch /></RoleGuard>),
   },
   {
     path: '/learner/:walletAddress',
-    element: <Layout><LearnerProfile /></Layout>,
+    element: page(<LearnerProfile />),
   },
   {
     path: '/history',
-    element: <Layout><History /></Layout>,
+    element: page(<History />),
   },
   {
     path: '*',
-    element: <Layout><NotFound /></Layout>,
+    element: page(<NotFound />),
   },
 ])
 
