@@ -15,6 +15,14 @@ export default defineConfig({
         'src/test/',
         '**/*.d.ts',
       ],
+      // Ratchet floor: locked just below current coverage so CI fails on
+      // regression without going red on today's baseline. Raise as coverage grows.
+      thresholds: {
+        statements: 60,
+        branches: 50,
+        functions: 65,
+        lines: 60,
+      },
     },
   },
 })
