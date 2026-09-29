@@ -58,6 +58,12 @@ From the web app, a mentor can:
 
 ## How this fits into the StepFi ecosystem
 
+<div align="center">
+
+<img src="./public/architecture.svg" alt="StepFi system architecture — StepFi-Web highlighted" width="900" />
+
+</div>
+
 StepFi is split across multiple repositories that together form one protocol:
 
 | Repo | Purpose | Stack |
@@ -139,6 +145,37 @@ No local backend setup is required to start contributing to the frontend.
 
 ---
 
+## Scripts
+
+| Command | What it does |
+|---------|--------------|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check (`tsc -b`) and produce a production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Lint with ESLint |
+| `npm test` | Run the Vitest suite once |
+| `npm run test:coverage` | Run tests with a coverage report |
+| `npm run test:a11y` | Build, then run the accessibility checks (`test-a11y.mjs`) |
+
+## 🔄 CI/CD
+
+Every push and PR runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — a **required check on `main`** — covering lint, type-check, unit tests, and the production build. The app deploys to Netlify ([`netlify.toml`](netlify.toml)); the landing page is served from Vercel ([`vercel.json`](vercel.json)).
+
+## 🛣️ Roadmap
+
+| Milestone | Status |
+|-----------|--------|
+| Sponsor pool dashboard — deposits, shares, live pool stats | ✅ |
+| Vendor registration, catalog, and payment history | ✅ |
+| Mentor vouching — review, submit, track, revoke | ✅ |
+| Wallet connect (Freighter) + TanStack Query data layer | ✅ |
+| Enforced CI gate (lint · type-check · test · build) | ✅ |
+| Accessibility test pass (`test:a11y`) | ✅ |
+| Live wallet-signature JWT auth (shared with StepFi-App) | 🚧 |
+| Editable sponsor/vendor profiles · notification preferences | 🗺️ |
+
+---
+
 ## Contributing
 
 StepFi-Web is open source and welcomes contributors of all experience levels.
@@ -179,4 +216,4 @@ https://contribute.grantfox.xyz/org/StepFi-app
 
 ## License
 
-MIT
+Released under the [MIT License](./LICENSE).

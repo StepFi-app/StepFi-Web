@@ -31,21 +31,18 @@ function createDummyAccount(): Account {
 async function computeSha256(buffer: Uint8Array | ArrayBuffer): Promise<string> {
   const bytes = new Uint8Array(buffer)
 
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    const hashBuffer = await crypto.subtle.digest('SHA-256', bytes)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  // Web Crypto (crypto.subtle) is present in every secure browser context and in
+  // Node's global webcrypto, so it is the one portable SHA-256 path. Using it
+  // exclusively keeps Node's 'crypto' builtin out of the browser bundle (no
+  // "Module 'crypto' has been externalized for browser compatibility" warning).
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    throw new Error('Web Crypto (crypto.subtle) is unavailable in this environment.')
   }
 
-  try {
-    const nodeCrypto = await import('crypto')
-    return nodeCrypto
-      .createHash('sha256')
-      .update(bytes)
-      .digest('hex')
-  } catch {
-    throw new Error('No SHA-256 crypto implementation available in this environment.')
-  }
+  const hashBuffer = await crypto.subtle.digest('SHA-256', bytes)
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 async function simulateContractCall<T>(

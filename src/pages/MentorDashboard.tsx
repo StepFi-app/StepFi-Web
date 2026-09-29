@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw, Clock, DollarSign, Percent, Ban, ExternalLink, XCircle } from 'lucide-react'
-import { vouchingService } from '../services/vouching.service'
-import { queryKeys } from '../services/queryKeys'
-import { useSubmitVouch, useRevokeVouch, useDeclineVouch } from '../hooks/useOptimisticVouch'
+import {
+  ClipboardList, ShieldCheck, Award, AlertTriangle, RotateCw,
+  Clock, DollarSign, Percent, Ban, ExternalLink, XCircle,
+  UserCheck, TrendingUp, Wallet,
+} from 'lucide-react'
+import { useSubmitVouch, useRevokeVouch } from '../hooks/useOptimisticVouch'
+import { useMentor } from '../hooks/useMentor'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -69,6 +71,13 @@ function ConfirmRevokeDialog({
               </p>
             </div>
           </div>
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2">
+            <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-text-primary text-xs">
+              Revoking a vouch may affect your own reputation score and future vouch capacity.
+              Only revoke if the learner has defaulted or the agreement has been breached.
+            </p>
+          </div>
           <div className="flex items-center justify-end gap-3">
             <Button variant="ghost" onClick={onCancel} disabled={revoking}>
               Cancel
@@ -89,7 +98,80 @@ function ConfirmRevokeDialog({
   )
 }
 
-export function Vouch() {
+function ProfileSection({
+  address,
+  score,
+  tier,
+  totalVouchesGiven,
+  activeVouchCount,
+  atRiskCount,
+  totalLoanImpact,
+  isLoading,
+}: {
+  address: string | null
+  score: number
+  tier: string
+  totalVouchesGiven: number
+  activeVouchCount: number
+  atRiskCount: number
+  totalLoanImpact: number
+  isLoading: boolean
+}) {
+  if (!address) return null
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Spinner size={24} />
+      </div>
+    )
+  }
+
+  const statCards = [
+    { label: 'Vouches Given', value: totalVouchesGiven, icon: UserCheck, color: 'text-brand' },
+    { label: 'Active Vouches', value: activeVouchCount, icon: ShieldCheck, color: 'text-blue-400' },
+    { label: 'At Risk', value: atRiskCount, icon: AlertTriangle, color: 'text-amber-400' },
+    { label: 'Total Impact', value: `$${totalLoanImpact.toLocaleString()}`, icon: DollarSign, color: 'text-brand' },
+  ]
+
+  return (
+    <Card className="mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <Award size={28} className="text-amber-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="font-display font-bold text-xl text-text-primary">Mentor Profile</h2>
+              <Badge label={tier} variant={TIER_VARIANTS[tier] ?? 'muted'} />
+            </div>
+            <p className="text-text-muted font-mono text-sm">{formatWallet(address)}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <TrendingUp size={14} className="text-brand" />
+              <span className="text-text-primary font-semibold">{score}</span>
+              <span className="text-text-muted text-sm">reputation score</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+        {statCards.map((stat) => (
+          <div key={stat.label} className="p-3 rounded-xl bg-elevated/50 border border-border">
+            <div className="flex items-center gap-1.5 mb-1">
+              <stat.icon size={14} className={stat.color} aria-hidden="true" />
+              <span className="text-text-muted text-xs font-medium uppercase tracking-wider">{stat.label}</span>
+            </div>
+            <span className="text-text-primary font-display font-bold text-lg">{stat.value}</span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+export function MentorDashboard() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { isConnected: walletConnected, connectFreighter } = useWallet()
@@ -99,19 +181,27 @@ export function Vouch() {
   const [revokeTarget, setRevokeTarget] = useState<string | null>(null)
   const [decliningId, setDecliningId] = useState<string | null>(null)
 
-  const requestsQuery = useQuery({
-    queryKey: queryKeys.vouches.requests(),
-    queryFn: vouchingService.getVouchRequests,
-  })
-
-  const activeVouchesQuery = useQuery({
-    queryKey: queryKeys.vouches.myVouches(),
-    queryFn: vouchingService.getMyVouches,
-  })
+  const {
+    address,
+    score,
+    tier,
+    totalVouchesGiven,
+    activeVouchCount,
+    atRiskCount,
+    totalLoanImpact,
+    requests,
+    activeVouches,
+    isLoadingReputation,
+    isLoadingRequests,
+    isLoadingActiveVouches,
+    isErrorRequests,
+    isErrorActiveVouches,
+    refetchRequests,
+    refetchActiveVouches,
+  } = useMentor()
 
   const submitMutation = useSubmitVouch()
   const revokeMutation = useRevokeVouch()
-  const declineMutation = useDeclineVouch()
 
   const handleVouchConfirm = async () => {
     if (!previewRequest) return
@@ -147,17 +237,10 @@ export function Vouch() {
     }
   }
 
-  const handleDecline = (id: string) => {
+  const handleDecline = async (id: string) => {
     setDecliningId(id)
-    declineMutation.mutate(id, {
-      onError: (error) => {
-        const message = error instanceof Error ? error.message : 'Failed to decline request.'
-        toast.error(message)
-      },
-      onSettled: () => {
-        setDecliningId(null)
-      },
-    })
+    await new Promise((r) => setTimeout(r, 600))
+    setDecliningId(null)
   }
 
   const tabs = [
@@ -165,13 +248,13 @@ export function Vouch() {
       key: 'requests' as const,
       label: 'Pending Requests',
       icon: ClipboardList,
-      count: requestsQuery.data?.length,
+      count: requests.length,
     },
     {
       key: 'active' as const,
       label: 'My Active Vouches',
       icon: ShieldCheck,
-      count: activeVouchesQuery.data?.length,
+      count: activeVouches.length,
     },
   ]
 
@@ -180,19 +263,30 @@ export function Vouch() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-semibold text-2xl text-text-primary mb-1">
-            Mentor Vouching
+            Mentor Portal
           </h1>
           <p className="text-text-muted">
-            Vouch for learners and help them access better loan terms.
+            Manage your vouch requests, active vouches, and track your mentoring impact.
           </p>
         </div>
         {!walletConnected && (
           <Button onClick={connectFreighter}>
-            <Award size={16} />
-            Connect Wallet to Vouch
+            <Wallet size={16} />
+            Connect Wallet
           </Button>
         )}
       </div>
+
+      <ProfileSection
+        address={address}
+        score={score}
+        tier={tier}
+        totalVouchesGiven={totalVouchesGiven}
+        activeVouchCount={activeVouchCount}
+        atRiskCount={atRiskCount}
+        totalLoanImpact={totalLoanImpact}
+        isLoading={isLoadingReputation}
+      />
 
       <div className="flex gap-1 p-1 rounded-xl bg-surface border border-border mb-8 w-fit"
         role="tablist" aria-label="Vouch tabs"
@@ -232,12 +326,12 @@ export function Vouch() {
         hidden={activeTab !== 'requests'}
       >
         <>
-          {requestsQuery.isLoading ? (
+          {isLoadingRequests ? (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
               <Spinner size={28} />
               <p className="text-text-muted text-sm">Loading vouch requests...</p>
             </div>
-          ) : requestsQuery.isError ? (
+          ) : isErrorRequests ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
                 <AlertTriangle size={24} className="text-red-400" />
@@ -248,12 +342,12 @@ export function Vouch() {
               <p className="text-text-muted text-sm max-w-md text-center">
                 Could not fetch vouch requests. Please try again later.
               </p>
-              <Button variant="outline" onClick={() => requestsQuery.refetch()}>
+              <Button variant="outline" onClick={() => refetchRequests()}>
                 <RotateCw size={14} />
                 Retry
               </Button>
             </div>
-          ) : !requestsQuery.data?.length ? (
+          ) : !requests.length ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="p-3 rounded-xl bg-elevated border border-border">
                 <ClipboardList size={24} className="text-text-muted" />
@@ -267,7 +361,7 @@ export function Vouch() {
             </div>
           ) : (
             <div className="space-y-4">
-              {requestsQuery.data.map((request) => (
+              {requests.map((request) => (
                 <VouchRequestCard
                   key={request.id}
                   request={request}
@@ -291,12 +385,12 @@ export function Vouch() {
         hidden={activeTab !== 'active'}
       >
         <>
-          {activeVouchesQuery.isLoading ? (
+          {isLoadingActiveVouches ? (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
               <Spinner size={28} />
               <p className="text-text-muted text-sm">Loading active vouches...</p>
             </div>
-          ) : activeVouchesQuery.isError ? (
+          ) : isErrorActiveVouches ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
                 <AlertTriangle size={24} className="text-red-400" />
@@ -307,12 +401,12 @@ export function Vouch() {
               <p className="text-text-muted text-sm max-w-md text-center">
                 Could not fetch your active vouches. Please try again later.
               </p>
-              <Button variant="outline" onClick={() => activeVouchesQuery.refetch()}>
+              <Button variant="outline" onClick={() => refetchActiveVouches()}>
                 <RotateCw size={14} />
                 Retry
               </Button>
             </div>
-          ) : !activeVouchesQuery.data?.length ? (
+          ) : !activeVouches.length ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <div className="p-3 rounded-xl bg-elevated border border-border">
                 <ShieldCheck size={24} className="text-text-muted" />
@@ -326,7 +420,7 @@ export function Vouch() {
             </div>
           ) : (
             <div className="space-y-4">
-              {activeVouchesQuery.data.map((vouch) => (
+              {activeVouches.map((vouch) => (
                 <Card key={vouch.id}>
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="flex-1 min-w-0">

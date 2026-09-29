@@ -5,15 +5,14 @@ import type { VouchRequest, ActiveVouch } from '../types'
 
 interface SubmitVouchParams {
   learnerAddress: string
-  txHash?: string
 }
 
 export function useSubmitVouch() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ learnerAddress, txHash }: SubmitVouchParams) =>
-      vouchingService.submitVouch(learnerAddress, txHash),
+    mutationFn: ({ learnerAddress }: SubmitVouchParams) =>
+      vouchingService.submitVouch(learnerAddress),
     onMutate: async ({ learnerAddress }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.vouches.requests() })
       await queryClient.cancelQueries({ queryKey: queryKeys.vouches.myVouches() })

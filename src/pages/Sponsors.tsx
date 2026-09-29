@@ -10,7 +10,7 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
-import type { PoolInfo } from '../types'
+import type { MySummary, PoolInfo } from '../types'
 import { colors } from '../constants/colors'
 import {
   TrendingUp,
@@ -45,6 +45,16 @@ export function Sponsors() {
     enabled: isConnected,
   })
 
+  const {
+    data: mySummary,
+    isLoading: summaryLoading,
+    isError: summaryError,
+  } = useQuery<MySummary>({
+    queryKey: queryKeys.pool.mySummary(),
+    queryFn: sponsorsService.getMySummary,
+    enabled: isConnected,
+  })
+
   const { execute, isLoading: txLoading, error: txError } = useTransaction()
 
   const handleDeposit = async (e: React.FormEvent) => {
@@ -74,10 +84,18 @@ export function Sponsors() {
     }
   }
 
+  const sharesNum = Number(withdrawShares)
+  const estimatedPayout = sharesNum * (poolInfo?.sharePrice || 0)
+  const overBalance = mySummary ? sharesNum > mySummary.shares : false
+  const overLiquidity = poolInfo ? estimatedPayout > poolInfo.availableLiquidity : false
+  const hasShares = mySummary ? mySummary.shares > 0 : false
+  const hasValidationError = overBalance || overLiquidity
+  const positionQueryLoading = summaryLoading
+
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault()
     const shares = Number(withdrawShares)
-    if (!shares || shares <= 0) return
+    if (!shares || shares <= 0 || hasValidationError) return
 
     try {
       const result = await execute(
@@ -120,8 +138,6 @@ export function Sponsors() {
       </div>
     )
   }
-
-  const previewUsdc = Number(withdrawShares) * (poolInfo?.sharePrice || 0)
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -302,6 +318,23 @@ export function Sponsors() {
                   <ArrowDownLeft size={18} />
                 </Button>
               </form>
+            ) : summaryError ? (
+              <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20 flex gap-3">
+                <AlertCircle className="text-red-500 shrink-0" size={20} />
+                <p className="text-sm text-red-500">Failed to load your position. Please try again later.</p>
+              </div>
+            ) : mySummary && !hasShares ? (
+              <div className="space-y-4">
+                <h3 className="font-display font-bold text-xl text-text-primary mb-4 flex items-center gap-2">
+                  Withdraw Funds
+                </h3>
+                <div className="p-4 bg-brand/5 rounded-xl border border-brand/10 text-center">
+                  <p className="text-text-secondary text-sm">You have no shares to withdraw.</p>
+                  <p className="text-text-muted text-xs mt-1">
+                    Deposit USDC to receive pool shares and start earning yield.
+                  </p>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleWithdraw} className="space-y-4" aria-label="Withdraw funds form">
                 <h3 className="font-display font-bold text-xl text-text-primary mb-4 flex items-center gap-2">
@@ -311,6 +344,9 @@ export function Sponsors() {
                   <label htmlFor="shares-amount" className="block text-sm text-text-secondary mb-2">
                     Amount of Shares
                   </label>
+                  <p className="text-xs text-text-muted mb-2">
+                    Your balance: {mySummary?.shares.toLocaleString() ?? '—'} shares
+                  </p>
                   <div className="relative">
                     <input
                       id="shares-amount"
@@ -318,22 +354,43 @@ export function Sponsors() {
                       value={withdrawShares}
                       onChange={(e) => setWithdrawShares(e.target.value)}
                       placeholder="0.00"
-                      className="w-full bg-bg border border-border rounded-xl px-4 py-3
+                      className="w-full bg-bg border border-border rounded-xl px-4 py-3 pr-20
                         text-text-primary focus:outline-none focus:border-brand transition-colors"
                       aria-describedby="shares-hint"
                     />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted text-sm" aria-hidden="true">
-                      SHARES
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1 items-center">
+                      <button
+                        type="button"
+                        onClick={() => setWithdrawShares(String(mySummary?.shares ?? 0))}
+                        className="text-xs font-semibold text-brand hover:text-brand/80 transition-colors px-2 py-1"
+                      >
+                        Max
+                      </button>
+                      <span className="text-text-muted text-sm" aria-hidden="true">SHARES</span>
                     </div>
                   </div>
-                  <p id="shares-hint" className="text-text-muted text-xs mt-1">Enter the number of pool shares to withdraw.</p>
+                  <p id="shares-hint" className="text-text-muted text-xs mt-1">
+                    Enter the number of pool shares to withdraw.
+                  </p>
+                  {overBalance && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+                      <AlertCircle size={12} />
+                      You only have {mySummary!.shares.toLocaleString()} shares.
+                    </p>
+                  )}
+                  {overLiquidity && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1" role="alert">
+                      <AlertCircle size={12} />
+                      Withdrawal exceeds available liquidity ({poolInfo!.availableLiquidity.toLocaleString()} USDC).
+                    </p>
+                  )}
                 </div>
 
-                {Number(withdrawShares) > 0 && (
+                {sharesNum > 0 && !hasValidationError && (
                   <div className="p-4 bg-brand/5 rounded-xl border border-brand/10">
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-text-secondary">Preview Value:</span>
-                      <span className="text-brand font-bold">{previewUsdc.toFixed(2)} USDC</span>
+                      <span className="text-brand font-bold">{estimatedPayout.toFixed(2)} USDC</span>
                     </div>
                     <p className="text-[10px] text-text-muted leading-tight">
                       Estimated amount based on current share price. Final amount may vary slightly.
@@ -352,7 +409,7 @@ export function Sponsors() {
                   type="submit"
                   className="w-full"
                   loading={txLoading}
-                  disabled={!withdrawShares || Number(withdrawShares) <= 0}
+                  disabled={!withdrawShares || Number(withdrawShares) <= 0 || positionQueryLoading || hasValidationError}
                 >
                   Withdraw USDC
                   <ArrowUpRight size={18} />
