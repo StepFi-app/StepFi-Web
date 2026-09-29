@@ -1,5 +1,6 @@
 import { api } from './api'
 import type {
+  MySummary,
   PoolInfo,
   UnsignedTransaction,
   DepositPreview,
@@ -9,6 +10,11 @@ import type {
 export const sponsorsService = {
   getPoolInfo: async (): Promise<PoolInfo> => {
     const res = await api.get('/liquidity/overview')
+    return res.data.data
+  },
+
+  getMySummary: async (): Promise<MySummary> => {
+    const res = await api.get('/liquidity/my-summary')
     return res.data.data
   },
 

@@ -11,7 +11,7 @@ const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/sponsors', label: 'Sponsors' },
   { href: '/vendors', label: 'Vendors' },
-  { href: '/vouch', label: 'Vouch' },
+  { href: '/mentor', label: 'Mentor' },
 ]
 
 export function Navbar() {

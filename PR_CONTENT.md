@@ -2,7 +2,7 @@
 
 Closes #[issue number]
 
-Add idempotency key and XDR hash deduplication to transaction submission to prevent duplicate submissions when the API crashes before confirming. The `transactionsService.submit()` method now auto-generates a UUID v4 idempotency key, hashes the signed XDR via SHA-256, checks localStorage for duplicates before calling the API, and stores completed records with a 24-hour TTL.
+Replace the stub `StepDeposit` component in the sponsor onboarding wizard with a fully functional deposit flow. Sponsors completing the 4-step onboarding can now actually deposit USDC — amount input with $10 minimum validation, unsigned XDR fetched from the API, signed via Freighter, submitted on-chain, and a success state with a Stellar Expert link. On success, onboarding is marked complete and the sponsor is navigated to the dashboard.
 
 ## This repo is for the React web app only
 
@@ -57,48 +57,21 @@ Running these must all exit 0:
 
 ## What changed
 
-### `src/services/idempotency.service.ts` (new)
+**`src/pages/SponsorOnboarding.tsx`** — Replaced the `StepDeposit` stub with a real deposit flow:
 
-Client-side idempotency layer backed by localStorage:
+- **Amount input** with `$10` minimum validation and inline error messaging (`aria-invalid`, `role="alert"`)
+- **Unsigned XDR** fetched via `sponsorsService.deposit(amount)`
+- **Freighter signing** handled by the existing `useTransaction` hook (which calls `@stellar/freighter-api`'s `signTransaction`)
+- **Signed XDR submission** via `transactionsService.submit(signedXdr, 'deposit')`
+- **Success state** showing deposit amount, transaction hash, and a Stellar Expert link
+- **Onboarding completion** — `onComplete` fires after a successful deposit, setting `onboardingComplete: true` and navigating to `/sponsors`
+- **Error state** displayed inline using the existing error card pattern from the Sponsors dashboard
+- **Disconnected state** still shows "Connect Freighter Wallet" with Freighter download link and GrantFox fallback
 
-- **`generateKey()`** — Returns a UUID v4 via `crypto.randomUUID()`
-- **`hashXdr(xdr)`** — SHA-256 hashes the XDR string via Web Crypto API for dedup lookups
-- **`findExisting(xdrHash)`** — Looks up an XDR hash in localStorage, pruning expired records (> 24h) before lookup
-- **`findByKey(idempotencyKey)`** — Looks up by idempotency key, pruning expired records before lookup
-- **`store(record)`** — Persists a completed submission record with key, hash, tx hash, type, and ISO timestamp
-- **`clear()`** — Removes all records (for testing/manual reset)
-
-### `src/services/transactions.service.ts`
-
-`submit()` now:
-
-1. Auto-generates a UUID v4 idempotency key
-2. Computes SHA-256 hash of the signed XDR
-3. Checks localStorage for an existing record with the same XDR hash → returns cached result if found
-4. Checks for duplicate idempotency key → returns cached result if found
-5. Sends `{ xdr, type, idempotency_key }` to `POST /transactions/submit`
-6. On success, stores the record in localStorage with 24h TTL
-
-No existing callers need changes — `useTransaction`, `useOptimisticDeposit`, and all page-level deposit/withdraw flows get idempotency protection automatically.
-
-### `src/types/index.ts`
-
-Added `IdempotencyRecord` interface:
-
-```ts
-export interface IdempotencyRecord {
-  idempotencyKey: string
-  xdrHash: string
-  transactionHash: string
-  type: TransactionType
-  createdAt: string
-}
-```
+All patterns mirror the existing deposit flow in `src/pages/Sponsors.tsx` exactly — `useTransaction`, `useToast`, `invalidatesubtree.pool`, and the success card layout.
 
 ### Files changed
 
 | File | Change |
 |------|--------|
-| `src/services/idempotency.service.ts` | New — idempotency key gen, XDR hash dedup, localStorage with 24h TTL |
-| `src/services/transactions.service.ts` | Updated — auto-generates key, checks duplicates, passes to API |
-| `src/types/index.ts` | Updated — added `IdempotencyRecord` type |
+| `src/pages/SponsorOnboarding.tsx` | Replaced `StepDeposit` stub with full deposit flow (+ imports) |

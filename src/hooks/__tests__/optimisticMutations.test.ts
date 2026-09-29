@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type ReactNode, createElement } from 'react'
-import { useSubmitVouch } from '../useOptimisticVouch'
+import { useSubmitVouch, useDeclineVouch } from '../useOptimisticVouch'
 import { useAddProduct, useUpdateProduct } from '../useOptimisticProduct'
 import { queryKeys } from '../../services/queryKeys'
 import type { VouchRequest, VendorProduct } from '../../types'
@@ -20,6 +20,12 @@ vi.mock('../../services/vouching.service', () => ({
         return Promise.reject(new Error('Revoke failed'))
       }
       return Promise.resolve()
+    }),
+    declineVouch: vi.fn().mockImplementation((learnerAddress: string) => {
+      if (learnerAddress === 'FAIL_ADDRESS') {
+        return Promise.reject(new Error('Decline failed'))
+      }
+      return Promise.resolve({ id: 'v1', status: 'declined' })
     }),
   },
 }))
@@ -89,6 +95,74 @@ describe('Optimistic Mutation Hooks', () => {
       await act(async () => {
         try {
           await result.current.mutateAsync({ learnerAddress: 'FAIL_ADDRESS' })
+        } catch {
+          // Expected rejection
+        }
+      })
+
+      const cached = queryClient.getQueryData<VouchRequest[]>(queryKeys.vouches.requests())
+      expect(cached).toEqual(initialRequests)
+    })
+  })
+
+  describe('useDeclineVouch', () => {
+    it('optimistically removes the request from cache and persists it on success', async () => {
+      const initialRequests: VouchRequest[] = [
+        {
+          id: 'req-1',
+          learnerAddress: 'G_LEARNER_1',
+          learnerWallet: 'G_LEARNER_1',
+          score: 80,
+          tier: 'Silver',
+          totalLoans: 2,
+          activeLoans: 1,
+          totalBorrowed: 500,
+          totalRepaid: 300,
+          loanAmount: 200,
+          purpose: 'Laptop',
+          requestedAt: '2026-01-01',
+          skills: ['Rust'],
+        },
+      ]
+
+      queryClient.setQueryData(queryKeys.vouches.requests(), initialRequests)
+
+      const { result } = renderHook(() => useDeclineVouch(), { wrapper })
+
+      await act(async () => {
+        await result.current.mutateAsync('G_LEARNER_1')
+      })
+
+      const cached = queryClient.getQueryData<VouchRequest[]>(queryKeys.vouches.requests())
+      expect(cached).toEqual([])
+    })
+
+    it('rolls back the optimistic removal when the request fails', async () => {
+      const initialRequests: VouchRequest[] = [
+        {
+          id: 'req-1',
+          learnerAddress: 'FAIL_ADDRESS',
+          learnerWallet: 'FAIL_ADDRESS',
+          score: 80,
+          tier: 'Silver',
+          totalLoans: 2,
+          activeLoans: 1,
+          totalBorrowed: 500,
+          totalRepaid: 300,
+          loanAmount: 200,
+          purpose: 'Laptop',
+          requestedAt: '2026-01-01',
+          skills: ['Rust'],
+        },
+      ]
+
+      queryClient.setQueryData(queryKeys.vouches.requests(), initialRequests)
+
+      const { result } = renderHook(() => useDeclineVouch(), { wrapper })
+
+      await act(async () => {
+        try {
+          await result.current.mutateAsync('FAIL_ADDRESS')
         } catch {
           // Expected rejection
         }

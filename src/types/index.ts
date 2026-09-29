@@ -272,6 +272,12 @@ export interface ContractWasmInfo {
   error?: string
 }
 
+export interface MySummary {
+  shares: number
+  value: number
+  sharePrice: number
+}
+
 export interface VerificationReconciliation {
   totalLiquidityMatch: boolean
   availableLiquidityMatch: boolean

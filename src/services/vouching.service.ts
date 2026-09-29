@@ -83,8 +83,11 @@ export const vouchingService = {
     return (res.data ?? []).filter((v) => v.status === 'approved').map(mapActiveVouch)
   },
 
-  // POST /vouching/approve — mentor approves a pending vouch request for a learner.
-  submitVouch: async (learnerAddress: string, _?: string): Promise<VouchResponse> => {
+  // POST /vouching/approve — mentor approves a pending vouch request for a
+  // learner. Authenticated by the mentor's wallet-bound JWT; intentionally an
+  // off-chain record transition (PENDING -> APPROVED), so no signed transaction
+  // is involved.
+  submitVouch: async (learnerAddress: string): Promise<VouchResponse> => {
     const res = await api.post<VouchResponse>('/vouching/approve', {
       learnerWallet: learnerAddress,
     })
@@ -94,5 +97,13 @@ export const vouchingService = {
   // DELETE /vouching/:id — mentor revokes a vouch they created.
   revokeVouch: async (id: string): Promise<void> => {
     await api.delete(`/vouching/${id}`)
+  },
+
+  // POST /vouching/decline — mentor declines a pending vouch request for a learner.
+  declineVouch: async (learnerAddress: string): Promise<VouchResponse> => {
+    const res = await api.post<VouchResponse>('/vouching/decline', {
+      learnerWallet: learnerAddress,
+    })
+    return res.data
   },
 }

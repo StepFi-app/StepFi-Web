@@ -6,6 +6,20 @@ pure chore/docs commits). Direct pushes to main must also be logged here.
 
 ---
 
+## 2026-07-29
+
+- Added withdrawal validation in Sponsors page (#89): the withdraw form now
+  fetches `GET /liquidity/my-summary` via `sponsorsService.getMySummary()` and
+  validates the requested shares against both the sponsor's actual share balance
+  and the pool's available liquidity. A "Max" button fills the field with the
+  sponsor's full share balance. The Preview Value block is suppressed when the
+  amount is invalid. The submit button is disabled while the position query is
+  loading. Zero-share sponsors see an empty state with an explanatory message.
+  Added `MySummary` type to `types/index.ts` and a `mySummary` key to
+  `queryKeys.pool`. Tests cover over-balance, over-liquidity, exact-balance
+  boundary, and zero-share sponsor states. Also fixed pre-existing
+  `lucide-react` missing declaration issue with a `.d.ts` shim.
+
 ## 2026-07-17
 
 - Fixed intermittent 401 on wallet-connect / role selection: the axios
