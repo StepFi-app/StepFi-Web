@@ -11,6 +11,33 @@ interface FailedRequest {
 let isRefreshing = false
 let failedQueue: FailedRequest[] = []
 
+/**
+ * Called when the session can no longer be recovered and the user has to be
+ * sent back through the login flow.
+ *
+ * This is injected rather than performed here because `api` is a plain module:
+ * it cannot call `useNavigate`, and assigning `window.location` would trigger a
+ * full document reload that throws away all React and store state. The router
+ * registers the real handler at startup (see `setSessionExpiredHandler` in
+ * `src/router/index.tsx`), which navigates declaratively instead.
+ */
+let sessionExpiredHandler: (() => void) | null = null
+
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  sessionExpiredHandler = handler
+}
+
+function notifySessionExpired(): void {
+  sessionExpiredHandler?.()
+}
+
+function endSession(): void {
+  // Clear the store first so in-memory auth state and its persisted copy are
+  // gone before anything navigates away from the current route.
+  useUserStore.getState().clearTokens()
+  notifySessionExpired()
+}
+
 function processQueue(error: unknown, token: string | null = null) {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -65,13 +92,14 @@ api.interceptors.response.use(
       const { accessToken: existingAccessToken, refreshToken } = useUserStore.getState()
       if (!refreshToken) {
         isRefreshing = false
-        useUserStore.getState().clearTokens()
-        // Only force-redirect users who were never authenticated.
-        // If a token existed (e.g. expired session with no refresh
-        // token), let the caller surface the error instead of
-        // tearing the page down.
+        // Only sign users out when there was no authenticated session to
+        // preserve. If a token existed (e.g. an expired session with no refresh
+        // token), let the caller surface the error instead of tearing the page
+        // down.
         if (!existingAccessToken) {
-          window.location.href = '/'
+          endSession()
+        } else {
+          useUserStore.getState().clearTokens()
         }
         return Promise.reject(error)
       }
@@ -91,8 +119,7 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError, null)
-        useUserStore.getState().clearTokens()
-        window.location.href = '/'
+        endSession()
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

@@ -5,8 +5,14 @@ interface AppStore {
   mobileMenuOpen: boolean
   onboardingComplete: boolean
   theme: 'dark' | 'light'
+  /**
+   * Set when a token refresh failed and the session cannot be recovered. The
+   * router watches this to redirect the user without a full page reload.
+   */
+  sessionExpired: boolean
   setMobileMenuOpen: (open: boolean) => void
   setOnboardingComplete: (complete: boolean) => void
+  setSessionExpired: (expired: boolean) => void
   toggleTheme: () => void
 }
 
@@ -16,15 +22,22 @@ export const useAppStore = create<AppStore>()(
       mobileMenuOpen: false,
       onboardingComplete: false,
       theme: 'dark',
+      sessionExpired: false,
       setMobileMenuOpen: (mobileMenuOpen) => set({ mobileMenuOpen }),
       setOnboardingComplete: (onboardingComplete) =>
         set({ onboardingComplete }),
+      setSessionExpired: (sessionExpired) => set({ sessionExpired }),
       toggleTheme: () =>
         set((state) => ({
           theme: state.theme === 'dark' ? 'light' : 'dark',
         })),
     }),
-    { name: 'stepfi-app' }
+    {
+      name: 'stepfi-app',
+      // A transient navigation signal must not survive a reload, or a later
+      // visit would bounce the user straight back to the dashboard.
+      partialize: (state) => ({ theme: state.theme }),
+    }
   )
 )
 
