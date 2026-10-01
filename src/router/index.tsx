@@ -1,11 +1,13 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
 import { Spinner } from '../components/ui/Spinner'
 import { useRoleStore } from '../stores/role.store'
 import type { UserRole } from '../stores/role.store'
 import { useWallet } from '../hooks/useWallet'
+import { useAppStore } from '../stores/app.store'
+import { setSessionExpiredHandler } from '../services/api'
 
 // Route pages are code-split so heavy per-page dependencies (e.g. the Stellar
 // SDK pulled in by the dashboard/vouch flows) load on demand instead of
@@ -55,6 +57,7 @@ function RoleGuard({
 function page(node: ReactNode) {
   return (
     <Layout>
+      <RedirectOnSessionExpiry />
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-32">
@@ -66,6 +69,26 @@ function page(node: ReactNode) {
       </Suspense>
     </Layout>
   )
+}
+
+/**
+ * Sends the user to /dashboard with a client-side redirect once the API layer
+ * reports that the session is unrecoverable.
+ *
+ * `/dashboard` is the role dispatcher: it reads the role store and forwards to
+ * the correct surface (or to `/` when no role is selected), which is the right
+ * entry point for a signed-out session.
+ *
+ * This exists so `src/services/api.ts` never has to assign `window.location`:
+ * a full document reload discards all React and store state. The service calls
+ * a handler that this component registers, and React Router performs the
+ * navigation.
+ */
+function RedirectOnSessionExpiry() {
+  const sessionExpired = useAppStore((s) => s.sessionExpired)
+
+  if (!sessionExpired) return null
+  return <Navigate to="/dashboard" replace />
 }
 
 const router = createBrowserRouter([
@@ -136,5 +159,13 @@ const router = createBrowserRouter([
 ])
 
 export function Router() {
+  useEffect(() => {
+    // Register the redirect once, at the top of the app: the API layer has no
+    // router context of its own, so this is how it hands the "session is over"
+    // signal back to React Router.
+    setSessionExpiredHandler(() => useAppStore.getState().setSessionExpired(true))
+    return () => setSessionExpiredHandler(null)
+  }, [])
+
   return <RouterProvider router={router} />
 }
